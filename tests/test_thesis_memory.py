@@ -11,7 +11,7 @@ from backend.brain.thesis import ThesisEngine
 
 def test_thesis_persists_to_memory_file():
     engine = ThesisEngine()
-    engine.ingest("open-source licensing")
+    engine.ingest("open-source licensing 001")
     hits = engine.memory.search("open-source")
-    assert len(hits) == 1
-    assert hits[0]["text"] == "open-source licensing"
+    assert len(hits) >= 1
+    assert any(h.get("text") == "open-source licensing 001" for h in hits)

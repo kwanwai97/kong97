@@ -1,46 +1,46 @@
 """
-Memory Graph - 分散式知識圖譜與向量資料庫
+記憶圖譜 - 分散式知識庫
 """
 from __future__ import annotations
 
 import hashlib
 import json
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 
-MEMORY_FILE = Path(__file__).resolve().parents[2] / "data" / "memory_graph.json"
+記憶檔案 = Path(__file__).resolve().parents[2] / "data" / "memory_graph.json"
 
 
-def ensure_memory_file() -> None:
-    MEMORY_FILE.parent.mkdir(parents=True, exist_ok=True)
-    if not MEMORY_FILE.exists():
-        MEMORY_FILE.write_text("[]", encoding="utf-8")
+def 確保檔案() -> None:
+    記憶檔案.parent.mkdir(parents=True, exist_ok=True)
+    if not 記憶檔案.exists():
+        記憶檔案.write_text("[]", encoding="utf-8")
 
 
-def hash_text(text: str) -> str:
-    return hashlib.md5(text.encode("utf-8")).hexdigest()[:10]
+def 雜湊(文字: str) -> str:
+    return hashlib.md5(文字.encode("utf-8")).hexdigest()[:10]
 
 
 class MemoryGraph:
     def __init__(self) -> None:
-        ensure_memory_file()
+        確保檔案()
 
     def load(self) -> List[Dict[str, Any]]:
         try:
-            return json.loads(MEMORY_FILE.read_text(encoding="utf-8"))
+            return json.loads(記憶檔案.read_text(encoding="utf-8"))
         except Exception:
             return []
 
-    def save(self, graph: List[Dict[str, Any]]) -> None:
-        MEMORY_FILE.write_text(json.dumps(graph, ensure_ascii=False, indent=2), encoding="utf-8")
+    def save(self, 圖譜: List[Dict[str, Any]]) -> None:
+        記憶檔案.write_text(json.dumps(圖譜, ensure_ascii=False, indent=2), encoding="utf-8")
 
-    def upsert(self, node: Dict[str, Any]) -> None:
-        graph = self.load()
-        node.setdefault("id", hash_text(node.get("text", "")))
-        graph.append(node)
-        self.save(graph)
+    def upsert(self, 節點: Dict[str, Any]) -> None:
+        圖譜 = self.load()
+        節點.setdefault("id", 雜湊(節點.get("text", "")))
+        圖譜.append(節點)
+        self.save(圖譜)
 
-    def search(self, keyword: str) -> List[Dict[str, Any]]:
-        k = keyword.lower()
-        return [n for n in self.load() if k in str(n.get("text", "")).lower()]
+    def search(self, 關鍵字: str) -> List[Dict[str, Any]]:
+        關鍵字 = 關鍵字.lower()
+        return [n for n in self.load() if 關鍵字 in str(n.get("text", "")).lower()]

@@ -1,5 +1,5 @@
 """
-API - 系統對外入口
+系統對外入口
 """
 from __future__ import annotations
 
@@ -25,11 +25,11 @@ from backend.safety.human_in_the_loop import HumanInTheLoop
 
 app = FastAPI(title="Digital Twin API")
 
-thesis = ThesisEngine()
-memory = MemoryGraph()
-wanderer = NightWanderer()
-peers = PeerAlignment()
-hitl = HumanInTheLoop()
+正反合 = ThesisEngine()
+記憶體 = MemoryGraph()
+巡邏者 = NightWanderer()
+對齊器 = PeerAlignment()
+協同器 = HumanInTheLoop()
 
 ROOT = Path(__file__).resolve().parents[2]
 FRONTEND_DIR = ROOT / "frontend" / "app" / "components"
@@ -39,90 +39,90 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/dashboard", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="dashboard")
 
 
-class Message(BaseModel):
+class 訊息(BaseModel):
     text: str
 
 
-class Action(BaseModel):
+class 行動(BaseModel):
     label: str
 
 
-class Compare(BaseModel):
+class 比較(BaseModel):
     a: str
     b: str
 
 
 @app.get("/health")
-def health() -> Dict[str, str]:
-    return {"status": "ok"}
+def 健康檢查() -> Dict[str, str]:
+    return {"狀態": "正常"}
 
 
 @app.get("/")
-def root() -> RedirectResponse:
+def 首頁() -> RedirectResponse:
     return RedirectResponse(url="/dashboard/dashboard.html")
 
 
 @app.get("/favicon.ico")
-def favicon() -> FileResponse:
+def 圖示() -> FileResponse:
     return FileResponse(str(FRONTEND_DIR / "dashboard.html"), status_code=204)
 
 
 @app.post("/ingest")
-def ingest(msg: Message) -> Dict[str, Any]:
-    t = thesis.ingest(msg.text)
-    return {"saved": True, "thought_id": getattr(t, "TS", None)}
+def 存入記憶(訊息_: 訊息) -> Dict[str, Any]:
+    t = 正反合.ingest(訊息_.text)
+    return {"已儲存": True, "思考id": getattr(t, "TS", None)}
 
 
 @app.post("/dialectic")
-def dialectic(msg: Message) -> Dict[str, Any]:
-    thesis.ingest(msg.text)
-    t_out = thesis.answer()
-    a_out = antithesis.challenge(t_out)
-    s_out = synthesis.fuse(t_out, a_out)
-    return {"thesis": t_out, "antithesis": a_out, "synthesis": s_out}
+def 辯證(訊息_: 訊息) -> Dict[str, Any]:
+    正反合.ingest(訊息_.text)
+    正 = 正反合.answer()
+    反 = antithesis.challenge(正)
+    整合 = synthesis.fuse(正, 反)
+    return {"正方": 正, "反方": 反, "整合結論": 整合}
 
 
 @app.get("/digest")
-def digest() -> Dict[str, Any]:
-    raw = wanderer.crawl(["arxiv", "github", "hackernews"])
-    summary = wanderer.summarize(raw)
-    return {"digests": raw, "summary": summary}
+def 摘要() -> Dict[str, Any]:
+    原始 = 巡邏者.crawl(["arxiv", "github", "hackernews"])
+    總結 = 巡邏者.summarize(原始)
+    return {"情報": 原始, "摘要": 總結}
 
 
 @app.get("/briefing/today")
-def briefing_today() -> Dict[str, Any]:
-    date_str = datetime.utcnow().strftime("%Y%m%d")
-    path = DATA_DIR / f"briefing_{date_str}.json"
-    if path.exists():
+def 今日簡報() -> Dict[str, Any]:
+    日期 = datetime.utcnow().strftime("%Y%m%d")
+    路徑 = DATA_DIR / f"briefing_{日期}.json"
+    if 路徑.exists():
         try:
-            return json.loads(path.read_text(encoding="utf-8"))
+            return json.loads(路徑.read_text(encoding="utf-8"))
         except Exception:
             pass
-    data = build_briefing()
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-    return data
+    資料 = build_briefing()
+    路徑.write_text(json.dumps(資料, ensure_ascii=False, indent=2), encoding="utf-8")
+    return 資料
 
 
 @app.post("/schedule/briefing")
-def schedule_briefing() -> Dict[str, Any]:
-    path = DATA_DIR / "briefing_latest.json"
-    data = build_briefing()
-    path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-    return {"saved": True, "path": str(path), "item_count": len(data.get("items", []))}
+def 手動簡報() -> Dict[str, Any]:
+    路徑 = DATA_DIR / "briefing_latest.json"
+    資料 = build_briefing()
+    路徑.write_text(json.dumps(資料, ensure_ascii=False, indent=2), encoding="utf-8")
+    return {"已儲存": True, "路徑": str(路徑), "項目數量": len(資料.get("items", []))}
 
 
 @app.get("/memory/search")
-def memory_search(q: str) -> Dict[str, Any]:
-    hits = memory.search(q)
-    return {"query": q, "hits": hits, "count": len(hits)}
+def 搜尋記憶(查詢: str) -> Dict[str, Any]:
+    結果 = 記憶體.search(查詢)
+    return {"查詢": 查詢, "結果": 結果, "數量": len(結果)}
 
 
 @app.post("/peers/align")
-def peer_align(payload: Compare) -> Dict[str, Any]:
-    result = peers.compare(payload.a, payload.b)
-    return {"alignment": result}
+def 對齊(資料: 比較) -> Dict[str, Any]:
+    結果 = 對齊器.compare(資料.a, 資料.b)
+    return {"對齊結果": 結果}
 
 
 @app.post("/approve")
-def approve(action: Action) -> Dict[str, Any]:
-    return {"approved": hitl.approve({"label": action.label})}
+def 核准(行動_: 行動) -> Dict[str, Any]:
+    return {"核准結果": 協同器.approve({"標籤": 行動_.label})}

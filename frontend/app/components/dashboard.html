@@ -30,9 +30,9 @@
   <header>
     <div>
       <div style="font-weight:700; letter-spacing:0.3px;">Digital Twin · 辯證合夥人</div>
-      <div class="muted">Dialectical Partner Architecture</div>
+      <div class="muted">辯證合夥人架構</div>
     </div>
-    <div style="margin-left:auto;"><span class="badge" id="status">status: init</span></div>
+    <div style="margin-left:auto;"><span class="badge" id="status">狀態：初始化</span></div>
   </header>
   <main>
     <section class="panel">
@@ -65,7 +65,7 @@
       <div class="section-title">辯證結果</div>
       <pre id="result">等待輸入...</pre>
       <div class="section">
-        <div class="section-title">情報看板</div>
+        <div class="section-title">情報摘要</div>
         <div id="briefingArea">尚未載入。</div>
       </div>
     </section>
@@ -79,19 +79,19 @@
     const sourceBox = document.getElementById('source');
     const qBox = document.getElementById('q');
     const briefingArea = document.getElementById('briefingArea');
-    function updateStatus(t){ status.textContent = 'status: ' + t; }
+    function updateStatus(t){ status.textContent = '狀態：' + t; }
     function log(msg){ logBox.textContent = '[LOG] ' + msg + '\n' + logBox.textContent; }
 
     async function api(path, opts = {}) {
-      updateStatus('loading');
+      updateStatus('載入中');
       try {
         const r = await fetch(API_BASE + path, { method: opts.method || 'GET', headers:{'content-type':'application/json'}, body: opts.body || null });
         return await r.json();
       } catch (e) {
-        log('error: ' + e);
+        log('錯誤：' + e);
         return null;
       } finally {
-        updateStatus('ready');
+        updateStatus('就緒');
       }
     }
     document.getElementById('ingest').onclick = async () => {
@@ -112,7 +112,7 @@
     };
     document.getElementById('briefing').onclick = async () => {
       const data = await api('/briefing/today');
-      if (data) { resultBox.textContent = JSON.stringify(data, null, 2); log('briefing 讀取完成'); renderBriefing((data.items || []) ); }
+      if (data) { resultBox.textContent = JSON.stringify(data, null, 2); log('簡報讀取完成'); renderBriefing((data.items || []) ); }
     };
     document.getElementById('memory').onclick = async () => {
       const q = (qBox && qBox.value.trim()) || '';
@@ -122,17 +122,17 @@
     };
     document.getElementById('peers').onclick = async () => {
       const data = await api('/peers/align', { method:'POST', body: JSON.stringify({ a:'alpha', b:'beta' }) });
-      if (data) { resultBox.textContent = JSON.stringify(data, null, 2); log('AI 校準完成'); }
+      if (data) { resultBox.textContent = JSON.stringify(data, null, 2); log('人工智慧對齊完成'); }
     };
     document.getElementById('approve').onclick = async () => {
       const data = await api('/approve', { method:'POST', body: JSON.stringify({ label:'manual-review' }) });
-      if (data) { log('批准結果: ' + JSON.stringify(data)); }
+      if (data) { log('核准結果：' + JSON.stringify(data)); }
     };
 
     function renderBriefing(items){
-      if (!Array.isArray(items) || !items.length) { briefingArea.innerHTML = '暂无情報。'; return; }
+      if (!Array.isArray(items) || !items.length) { briefingArea.innerHTML = '暫無情報。'; return; }
       const cards = items.slice(0,8).map(it => {
-        const title = it.title || 'untitled';
+        const title = it.title || '未命名';
         const summary = it.summary || '';
         const link = it.link || '#';
         const source = it.source || '';

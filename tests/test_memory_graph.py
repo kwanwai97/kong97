@@ -17,9 +17,9 @@ def test_memory_graph_file_created():
 
 
 def test_memory_graph_search():
-    from backend.brain.memory_graph import MEMORY_FILE
-    if MEMORY_FILE.exists():
-        MEMORY_FILE.write_text("[]", encoding="utf-8")
+    from backend.brain.memory_graph import 記憶檔案
+    if 記憶檔案.exists():
+        記憶檔案.write_text("[]", encoding="utf-8")
     graph = MemoryGraph()
     graph.upsert({"text": "digital twin"})
     graph.upsert({"text": "trading system"})

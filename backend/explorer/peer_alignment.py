@@ -10,4 +10,4 @@ class PeerAlignment:
     def compare(self, a: str, b: str) -> str:
         sa, sb = len(a), len(b)
         delta = abs(sa - sb) / max(1, max(sa, sb))
-        return f"alignment_delta={delta:.2f}; len_a={sa}; len_b={sb}"
+        return f"對齊差異：{delta:.2f}；長度甲：{sa}；長度乙：{sb}"

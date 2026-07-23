@@ -1,5 +1,5 @@
 """
-Dialectical Brain - 辯證合夥人核心（可接 real LLM）
+Dialectical Brain - 辯證合夥人核心
 """
 from __future__ import annotations
 
@@ -38,7 +38,7 @@ class ThesisEngine:
     def answer(self) -> str:
         if not self.use_real:
             ctx = " | ".join([c.Text for c in self.conversation[-5:]])
-            return f"[Thesis/mock] 根據最近 {len(self.conversation)} 則輸入，眼下討論重心為：{ctx}"
+            return f"[正方/模擬] 根據最近 {len(self.conversation)} 則輸入，眼下討論重心為：{ctx}"
 
         try:
             from openai import OpenAI
@@ -51,7 +51,7 @@ class ThesisEngine:
             return text
         except Exception:
             ctx = " | ".join([c.Text for c in self.conversation[-5:]])
-            return f"[Thesis/fallback] 根據最近 {len(self.conversation)} 則輸入，眼下討論重心為：{ctx}"
+            return f"[正方/備用] 根據最近 {len(self.conversation)} 則輸入，眼下討論重心為：{ctx}"
 
 
 class AntithesisEngine:
@@ -63,7 +63,7 @@ class AntithesisEngine:
     def challenge(self, thesis: str) -> str:
         if not self.use_real:
             seed = thesis.split("：")[-1] if "：" in thesis else thesis
-            return f"[Antithesis/mock] 命題『{seed[:40]}』可能忽略反面證據，請列出關鍵反例。"
+            return f"[反方/模擬] 命題『{seed[:40]}』可能忽略反面證據，請列出關鍵反例。"
 
         try:
             from openai import OpenAI
@@ -74,9 +74,9 @@ class AntithesisEngine:
             ]
             r = client.chat.completions.create(model=self.model, messages=msgs, temperature=0.45)
             text = (r.choices[0].message.content or "").strip()
-            return text or f"[Antithesis/fallback] 針對：{thesis[:40]}..."
+            return text or f"[反方/備用] 針對：{thesis[:40]}..."
         except Exception:
-            return f"[Antithesis/fallback] 針對：{thesis[:40]}..."
+            return f"[反方/備用] 針對：{thesis[:40]}..."
 
 
 class SynthesisEngine:
@@ -87,17 +87,17 @@ class SynthesisEngine:
 
     def fuse(self, a: str, b: str) -> str:
         if not self.use_real:
-            return "[Synthesis/mock] 保留正反核心，放寬前提條件，形成第三視角命題。"
+            return "[整合/模擬] 保留正反核心，放寬前提條件，形成第三視角命題。"
 
         try:
             from openai import OpenAI
             client = OpenAI(api_key=self.api_key)
             msgs = [
                 {"role": "system", "content": "你是辯證合夥人的整合引擎，產生第三視角結論。"},
-                {"role": "user", "content": f"Thesis:\n{a}\n\nAntithesis:\n{b}\n\n請產出第三視角結論。"},
+                {"role": "user", "content": f"正方論述：\n{a}\n\n反方論述：\n{b}\n\n請產出第三視角結論。"},
             ]
             r = client.chat.completions.create(model=self.model, messages=msgs, temperature=0.5)
             text = (r.choices[0].message.content or "").strip()
-            return text or "[Synthesis/fallback] 保留正反核心，放寬前提條件。"
+            return text or "[整合/備用] 保留正反核心，放寬前提條件。"
         except Exception:
-            return "[Synthesis/fallback] 保留正反核心，放寬前提條件。"
+            return "[整合/備用] 保留正反核心，放寬前提條件。"
