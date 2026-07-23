@@ -13,9 +13,12 @@
 ## 快速啟動
 
 ```bash
+git clone <your-repo-url>
+cd digital-twin-dialectical
 python -m venv .venv
-source .venv/Scripts/activate
+.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
+copy .env.example .env
 python run.py
 ```
 
@@ -24,6 +27,19 @@ python run.py
 ```bash
 curl http://127.0.0.1:5678/health
 ```
+
+## 部署到雲端
+
+### Railway
+1. 安裝 Railway CLI
+2. `railway init`
+3. `railway up`
+
+### Render / Fly.io
+- 連接 GitHub repo
+- Build Command: `pip install -r requirements.txt`
+- Start Command: `python run.py`
+- Port: `5678`
 
 ## 系統結構
 
