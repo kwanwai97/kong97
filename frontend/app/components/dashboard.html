@@ -4,65 +4,73 @@
   <meta charset="utf-8" />
   <title>Digital Twin · 辯證合夥人</title>
   <style>
-    :root {
-      --bg: #0b1220;
-      --panel: #111827;
-      --border: #1f2937;
-      --text: #e5e7eb;
-      --muted: #9ca3af;
-    }
+    :root { --bg:#0b1220; --panel:#111827; --border:#1f2937; --text:#e5e7eb; --muted:#9ca3af; --accent:#60a5fa; }
     * { box-sizing: border-box; }
-    html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text); font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI"; }
-    header { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
-    main { display: grid; grid-template-columns: 360px 1fr; gap: 16px; padding: 16px; height: calc(100% - 57px); }
-    .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 14px; padding: 18px; overflow: auto; }
-    textarea { width: 100%; height: 140px; background: #0b1220; color: #e5e7eb; border: 1px solid var(--border); border-radius: 10px; padding: 12px; resize: vertical; }
-    .row { display: flex; gap: 10px; margin-top: 10px; }
-    button { background: #2563eb; color: white; border: 0; padding: 10px 14px; border-radius: 10px; cursor: pointer; }
-    button:disabled { opacity: .5; }
-    pre { background: #0b1220; border: 1px solid var(--border); padding: 14px; border-radius: 12px; white-space: pre-wrap; }
-    .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; background: #1f2937; color: #e5e7eb; font-size: 12px; }
+    html, body { margin:0; height:100%; background:var(--bg); color:var(--text); font-family:ui-sans-serif, system-ui, -apple-system, "Segoe UI"; }
+    header { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px; }
+    main { display:grid; grid-template-columns: 380px 1fr; gap:14px; padding:14px; height:calc(100% - 53px); }
+    .panel { background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:16px; overflow:auto; }
+    textarea { width:100%; height:120px; background:#0b1220; color:#e5e7eb; border:1px solid var(--border); border-radius:10px; padding:12px; resize:vertical; font-size:14px; }
+    .row { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+    button { background:#2563eb; color:white; border:0; padding:9px 12px; border-radius:10px; cursor:pointer; font-size:13px; }
+    button:hover { background:#1d4ed8; }
+    .muted { color: var(--muted); font-size:12px; }
+    pre { background:#0b1220; border:1px solid var(--border); padding:12px; border-radius:12px; white-space:pre-wrap; font-size:13px; }
+    .badge { display:inline-block; padding:4px 10px; border-radius:999px; background:#1f2937; color:#e5e7eb; font-size:12px; }
+    .card { background:#0f172a; border:1px solid var(--border); border-radius:12px; padding:12px; margin:8px 0; }
+    .card h3 { margin:0 0 6px; color:#f3f4f6; font-size:14px; }
+    .card a { color:var(--accent); font-size:12px; text-decoration:none; word-break:break-all; }
+    .card p { margin:6px 0 0; color:#cbd5e1; font-size:12px; line-height:1.4; }
+    .section { margin-top:14px; }
+    .section-title { color:#94a3b8; font-size:12px; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.4px; }
+    input[type="text"] { width:100%; padding:8px; border-radius:8px; border:1px solid var(--border); background:#0b1220; color:#e5e7eb; font-size:13px; }
   </style>
 </head>
 <body>
   <header>
     <div>
       <div style="font-weight:700; letter-spacing:0.3px;">Digital Twin · 辯證合夥人</div>
-      <div style="color: var(--muted); font-size: 12px;">Dialectical Partner Architecture</div>
+      <div class="muted">Dialectical Partner Architecture</div>
     </div>
-    <div style="margin-left:auto;">
-      <span class="badge" id="status">status: init</span>
-    </div>
+    <div style="margin-left:auto;"><span class="badge" id="status">status: init</span></div>
   </header>
   <main>
     <section class="panel">
-      <div style="color: var(--muted); font-size: 12px;">輸入文本</div>
+      <div class="muted">輸入文本</div>
       <textarea id="source" placeholder="輸入要辯證的文本..."></textarea>
       <div class="row">
         <button id="ingest">存入記憶</button>
         <button id="dialectic">啟動辯證</button>
       </div>
       <div class="row">
-        <button id="digest">讀取夜間巡查摘要</button>
-        <button id="briefing">讀取今日 briefing</button>
+        <button id="digest">夜間巡查</button>
+        <button id="briefing">今日簡報</button>
       </div>
       <div class="row">
         <button id="memory">搜尋記憶</button>
-        <button id="peers">AI 校準</button>
+        <button id="peers">人工智慧對齊</button>
+        <button id="approve">要求外部核准</button>
       </div>
-      <div class="row">
-        <button id="approve">要求外部批准</button>
+      <div class="section">
+        <div class="section-title">記憶搜尋關鍵字</div>
+        <input id="q" placeholder="例如：數位" />
       </div>
-      <div style="margin-top:12px; color: var(--muted); font-size: 12px;">記憶搜尋關鍵字</div>
-      <input id="q" placeholder="輸入關鍵字，例如：digital" style="width:100%;padding:8px;border-radius:8px;border:1px solid #1f2937;background:#0b1220;color:#e5e7eb;" />
-      <div style="margin-top:16px; color: var(--muted); font-size: 12px;">系統日誌</div>
-      <pre id="log">尚未啟動。</pre>
+      <div class="section">
+        <div class="section-title">系統日誌</div>
+        <pre id="log">尚未啟動。</pre>
+      </div>
     </section>
+
     <section class="panel">
-      <div style="color: var(--muted); font-size: 12px;">辯證結果</div>
+      <div class="section-title">辯證結果</div>
       <pre id="result">等待輸入...</pre>
+      <div class="section">
+        <div class="section-title">情報看板</div>
+        <div id="briefingArea">尚未載入。</div>
+      </div>
     </section>
   </main>
+
   <script>
     const API_BASE = '';
     const status = document.getElementById('status');
@@ -70,12 +78,14 @@
     const resultBox = document.getElementById('result');
     const sourceBox = document.getElementById('source');
     const qBox = document.getElementById('q');
+    const briefingArea = document.getElementById('briefingArea');
     function updateStatus(t){ status.textContent = 'status: ' + t; }
+    function log(msg){ logBox.textContent = '[LOG] ' + msg + '\n' + logBox.textContent; }
 
     async function api(path, opts = {}) {
       updateStatus('loading');
       try {
-        const r = await fetch(API_BASE + path, { method: opts.method || 'GET', headers: { 'content-type': 'application/json' }, body: opts.body || null });
+        const r = await fetch(API_BASE + path, { method: opts.method || 'GET', headers:{'content-type':'application/json'}, body: opts.body || null });
         return await r.json();
       } catch (e) {
         log('error: ' + e);
@@ -84,25 +94,25 @@
         updateStatus('ready');
       }
     }
-    function log(msg){ logBox.textContent = '[LOG] ' + msg + '\n' + logBox.textContent; }
     document.getElementById('ingest').onclick = async () => {
       const text = sourceBox.value.trim();
       if (!text) return log('輸入為空');
-      await api('/ingest', { method: 'POST', body: JSON.stringify({ text }) });
+      await api('/ingest', { method:'POST', body: JSON.stringify({ text }) });
       log('已存入記憶');
     };
     document.getElementById('dialectic').onclick = async () => {
       const text = sourceBox.value.trim();
       if (!text) return log('輸入為空');
-      const data = await api('/dialectic', { method: 'POST', body: JSON.stringify({ text }) });
-      if (data) {
-        resultBox.textContent = JSON.stringify(data, null, 2);
-        log('辯證完成');
-      }
+      const data = await api('/dialectic', { method:'POST', body: JSON.stringify({ text }) });
+      if (data) { resultBox.textContent = JSON.stringify(data, null, 2); log('辯證完成'); }
     };
     document.getElementById('digest').onclick = async () => {
       const data = await api('/digest');
-      if (data) { resultBox.textContent = JSON.stringify(data, null, 2); log('摘要讀取完成'); }
+      if (data) { resultBox.textContent = JSON.stringify(data, null, 2); log('摘要讀取完成'); renderBriefing(data.digests || []); }
+    };
+    document.getElementById('briefing').onclick = async () => {
+      const data = await api('/briefing/today');
+      if (data) { resultBox.textContent = JSON.stringify(data, null, 2); log('briefing 讀取完成'); renderBriefing((data.items || []) ); }
     };
     document.getElementById('memory').onclick = async () => {
       const q = (qBox && qBox.value.trim()) || '';
@@ -111,13 +121,32 @@
       if (data) { resultBox.textContent = JSON.stringify(data, null, 2); log('記憶搜尋完成'); }
     };
     document.getElementById('peers').onclick = async () => {
-      const data = await api('/peers/align', { method: 'POST', body: JSON.stringify({ a: 'alpha', b: 'beta' }) });
+      const data = await api('/peers/align', { method:'POST', body: JSON.stringify({ a:'alpha', b:'beta' }) });
       if (data) { resultBox.textContent = JSON.stringify(data, null, 2); log('AI 校準完成'); }
     };
     document.getElementById('approve').onclick = async () => {
-      const data = await api('/approve', { method: 'POST', body: JSON.stringify({ label: 'manual-review' }) });
+      const data = await api('/approve', { method:'POST', body: JSON.stringify({ label:'manual-review' }) });
       if (data) { log('批准結果: ' + JSON.stringify(data)); }
     };
+
+    function renderBriefing(items){
+      if (!Array.isArray(items) || !items.length) { briefingArea.innerHTML = '暂无情報。'; return; }
+      const cards = items.slice(0,8).map(it => {
+        const title = it.title || 'untitled';
+        const summary = it.summary || '';
+        const link = it.link || '#';
+        const source = it.source || '';
+        return `<div class="card">
+          <h3>${escapeHtml(title)}</h3>
+          <div class="muted">${escapeHtml(source)}</div>
+          <a href="${escapeHtml(link)}" target="_blank">${escapeHtml(link)}</a>
+          <p>${escapeHtml(summary)}</p>
+        </div>`;
+      }).join('');
+      briefingArea.innerHTML = cards;
+    }
+    function escapeHtml(s){ return String(s).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+    (async ()=>{ const data = await api('/briefing/today'); if(data){ renderBriefing(data.items || []); } })();
   </script>
 </body>
 </html>
