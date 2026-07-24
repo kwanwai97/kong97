@@ -103,6 +103,19 @@ PROTECTED_PREFIXES = ("/identity", "/sessions", "/ingest", "/memory/search")
 PUBLIC_PATHS = ("/health", "/brain/status", "/dialectic", "/digest", "/briefing/today") + tuple(f"/auth{r}" for r in ["/register", "/login"])
 
 
+@app.middleware("http")
+async def enforce_auth(request: Request, call_next):
+    path = request.url.path
+    if any(path == p or path.startswith(p + "/") for p in PROTECTED_PREFIXES):
+        token = request.headers.get("X-User-Token", "")
+        if not token:
+            return JSONResponse(status_code=401, content={"detail": "缺少 X-User-Token"})
+        info = auth_module.verify(token)
+        if not info:
+            return JSONResponse(status_code=401, content={"detail": "無效或已過期的 X-User-Token"})
+    return await call_next(request)
+
+
 async def 取得使用者(x_user_token: str = Header(default="", alias="X-User-Token")) -> Dict[str, Any]:
     if not x_user_token:
         raise HTTPException(status_code=401, detail="缺少 X-User-Token")
