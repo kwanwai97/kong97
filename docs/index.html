@@ -188,13 +188,15 @@
     </div>
     <div class="card">
       <b>📚 個人資料庫</b>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+      <div id="factsEdit" style="display:none;margin-top:8px">
         <input id="factKey" placeholder="名稱">
         <input id="factValue" placeholder="內容">
         <select id="factCat"><option value="bio">個人</option><option value="pref">偏好</option><option value="constraint">限制</option><option value="goal">目標</option></select>
         <button id="addFactBtn" class="secondary">＋ 加入</button>
+        <button id="cancelFactBtn" class="secondary">取消</button>
       </div>
       <pre id="facts" style="max-height:180px">尚無資料</pre>
+      <button id="editFactsBtn" class="secondary" style="margin-top:6px">✎ 修改資料</button>
     </div>
     <div class="card">
       <b>🎯 今日決定</b>
@@ -317,7 +319,20 @@ decisionGrid.querySelectorAll('.chip').forEach(btn=>{
 document.getElementById('loginBtn').onclick=async()=>{
   const u=document.getElementById('user').value.trim(); const p=document.getElementById('pass').value;
   if(!u||!p){setText('authMsg','請輸入帳號與密碼','err');return;}
-  try{ const j=await api('/auth/login',{method:'POST',body:JSON.stringify({username:u,password:p})}); token=j.token; localStorage.setItem(TOKEN_KEY,token); setText('authMsg','登入成功，正在建立你的引導...','ok'); showPanel(1); }catch(e){ setText('authMsg','登入失敗：'+e.message,'err'); }
+  try{
+    const j=await api('/auth/login',{method:'POST',body:JSON.stringify({username:u,password:p})});
+    token=j.token; localStorage.setItem(TOKEN_KEY,token);
+    setText('authMsg','登入成功，檢查你的資料...','ok');
+    // check if user already has profile -> go straight to app
+    const profile = await api('/identity/profile').catch(()=>null);
+    if(profile && (profile.risk_tolerance || profile.time_horizon)){
+      setText('authMsg','歡迎回來！','ok');
+      showApp({username:u,display_name:j.display_name||u});
+    } else {
+      setText('authMsg','登入成功，開始你的設定...','ok');
+      showPanel(1);
+    }
+  }catch(e){ setText('authMsg','登入失敗：'+e.message,'err'); }
 };
 document.getElementById('registerBtn').onclick=async()=>{
   const u=document.getElementById('user').value.trim(); const p=document.getElementById('pass').value; const d=document.getElementById('display').value.trim();
@@ -370,13 +385,24 @@ goStep = async function(delta){
 };
 
 function renderFacts(d){ const rows=Array.isArray(d.事實)?d.事實:[]; if(!rows.length){ setText('facts','尚無資料，按上方「＋ 加入」開始','meta'); return; } setHtml('facts', rows.map(r=>'['+r.category+'] '+r.key+': '+r.value).join('\\n')); }
+
+document.getElementById('editFactsBtn').onclick=function(){ document.getElementById('factsEdit').style.display='block'; this.style.display='none'; };
+document.getElementById('cancelFactBtn').onclick=function(){ document.getElementById('factsEdit').style.display='none'; document.getElementById('editFactsBtn').style.display='inline-block'; };
 function renderDecisions(d){ const rows=Array.isArray(d.決策)?d.決策:[]; if(!rows.length){ setHtml('decisions','尚無決定，記錄第一個吧！'); return; } setHtml('decisions', rows.map(r=>'<div class="list-item"><b>'+(r.topic||'')+'</b> → '+(r.choice||'')+'<br><small class="meta">'+(r.reasoning||'')+'<br>'+(r.outcome?('成果：'+r.outcome):'尚未記錄成果')+' '+(r.tags?('。'+r.tags.join(',')):'')+'<br>'+(r.created_at||'')+'</small></div>').join('')); }
 function renderLogs(d){ const rows=Array.isArray(d.日誌)?d.日誌:[]; if(!rows.length){ setText('logs','尚無反思，寫幾句今天發生什麼事吧','meta'); return; } setHtml('logs', rows.map(r=>'['+r.date+'] '+JSON.stringify(r.entries||[])).join('\\n')); }
 function renderBlindspots(d){ const rows=Array.isArray(d.盲點訊號)?d.盲點訊號:[]; if(!rows.length){ setHtml('blindspots','尚無訊號，等你記錄後按「開始分析」'); return; } setHtml('blindspots', rows.map(r=>'<div class="list-item"><b>'+(r.pattern||r.id)+'</b> · '+(r.severity||'')+'<br><small class="meta">'+(r.evidence||[]).join(' | ')+'</small></div>').join('')); }
 function refreshDecisionsWithOutcome(){ api('/identity/decisions').then(d=>{ const rows=Array.isArray(d.決策)?d.決策:[]; const withOutcome=rows.filter(r=>r.outcome); setHtml('decisionsOutcome', withOutcome.length ? rows.map(r=>'<div class="list-item"><b>'+r.id+'</b> '+(r.topic||'')+' → '+(r.choice||'')+'<br><small class="meta">成果：'+(r.outcome||'無')+' '+(r.outcome_recorded_at||'')+'</small></div>').join('') : '尚無成果，當決定有結果時回來記錄吧！'); }).catch(()=>{}); }
 
 // Init
-if(token){ showApp({username:'',display_name:''}); }
+if(token){
+  api('/identity/profile').then(d=>{
+    if(d && (d.risk_tolerance || d.time_horizon)){
+      showApp({username:'',display_name:''});
+    } else {
+      showPanel(1);
+    }
+  }).catch(()=>showPanel(1));
+}
 </script>
 </body>
 </html>
