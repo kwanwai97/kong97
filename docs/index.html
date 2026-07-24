@@ -18,6 +18,8 @@
   select{min-width:160px}
   .ok{color:#1b5e20}.err{color:#b71c1c}.meta{color:#6a737d;font-size:.9em}
   .hidden{display:none}
+  .wizard-panel{display:none}
+  .wizard-panel.active{display:block}
   .step-dots{text-align:center;margin:16px 0}
   .step-dots span{display:inline-block;width:10px;height:10px;border-radius:50%;background:#d0d5dd;margin:0 6px}
   .step-dots span.active{background:#2276d6}
@@ -250,7 +252,7 @@ function showPanel(n){ steps.forEach((id,i)=>{ const el=document.getElementById(
 function goStep(delta){ showPanel(currentStep+delta); }
 
 function showApp(user){
-  document.querySelectorAll('.wizard-panel').forEach(el=>el.classList.add('hidden'));
+  document.querySelectorAll('.wizard-panel').forEach(el=>el.classList.remove('active'));
   document.getElementById('app').classList.remove('hidden');
   document.getElementById('greet').textContent = '👋 您好，'+(user.display_name||user.username);
   document.getElementById('userName').textContent = '@'+user.username;
