@@ -423,3 +423,41 @@ def 取得個人事實(user: Dict[str, Any] = Depends(取得使用者), category
     cat = category.strip() or None
     rows = 身份層.get_user_facts(uid, category=cat)
     return {"用戶": uid, "事實": rows}
+
+
+# Proactive Identity Routes
+
+主動者 = None
+
+def _proactive() -> "ProactiveIdentity":
+    global 主動者
+    if 主動者 is None:
+        from backend.proactive_identity import ProactiveIdentity
+        主動者 = ProactiveIdentity()
+    return 主動者
+
+
+@app.get("/identity/reminders")
+def 取得提醒(user: Dict[str, Any] = Depends(取得使用者), days: int = 14) -> Dict[str, Any]:
+    uid = user["user_id"]
+    rows = _proactive().list_reminders(uid, days=days)
+    return {"用戶": uid, "提醒": rows}
+
+
+@app.post("/identity/reminders/generate")
+def 產生提醒(user: Dict[str, Any] = Depends(取得使用者)) -> Dict[str, Any]:
+    uid = user["user_id"]
+    rows = _proactive().generate_reminders(uid)
+    return {"用戶": uid, "已產生": rows}
+
+
+@app.post("/identity/reminders/{reminder_id}/resolve")
+def 解決提醒(reminder_id: str, user: Dict[str, Any] = Depends(取得使用者)) -> Dict[str, Any]:
+    uid = user["user_id"]
+    return _proactive().set_reminder_status(uid, reminder_id, "resolved")
+
+
+@app.get("/identity/digest")
+def 身份摘要(user: Dict[str, Any] = Depends(取得使用者), days: int = 3) -> Dict[str, Any]:
+    uid = user["user_id"]
+    return _proactive().daily_digest(uid, days=days)
