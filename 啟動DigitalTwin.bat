@@ -15,10 +15,27 @@ curl -s http://127.0.0.1:5678/health >nul 2>&1
 if errorlevel 1 goto wait
 
 echo backend is up.
-start http://127.0.0.1:5678/dashboard/dashboard.html
+
+:: Detect LAN IP for mobile access
+for /f "tokens=2 delims=:" %%I in ('ipconfig ^| findstr /i "IPv4"') do (
+  set "LANIP=%%I"
+  goto :gotip
+)
+:gotip
+set "LANIP=%LANIP: =%"
 
 echo.
-echo Digital Twin is running at http://127.0.0.1:5678/dashboard/dashboard.html
-echo Do NOT close this window while using the system.
+echo ============================================================
+echo Digital Twin is running:
+echo   - This PC: http://127.0.0.1:5678/dashboard/dashboard.html
+echo   - Mobile:   http://%LANIP%:5678/dashboard/dashboard.html
 echo.
+echo If your phone cannot connect:
+echo   1) Make sure your phone is on the same Wi-Fi as this PC.
+echo   2) If still blocked, allow port 5678 through Windows Firewall.
+echo ============================================================
+echo.
+
+start http://127.0.0.1:5678/dashboard/dashboard.html
+echo Do NOT close this window while using the system.
 pause
