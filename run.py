@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from dotenv import load_dotenv
+load_dotenv()
 from backend.api.main import app
-import uvicorn, os
+import uvicorn
 uvicorn.run(app, host="127.0.0.1", port=5678)
