@@ -9,6 +9,8 @@
     .card { border: 1px solid #ddd; padding: 16px; border-radius: 8px; margin: 10px 0; }
     input, button { margin: 4px; padding: 8px; }
     pre { background: #f6f6f6; padding: 10px; border-radius: 6px; overflow: auto; }
+    .err { color: #b71c1c; }
+    .ok { color: #1b5e20; }
   </style>
 </head>
 <body>
@@ -16,10 +18,11 @@
   <div class="card">
     <b>後端 Base URL</b>
     <div>
-      <input id="apiBase" placeholder="https://your-backend.example.com" style="width: 70%;">
+      <input id="apiBase" placeholder="http://127.0.0.1:5678" style="width: 70%;">
       <button onclick="saveBase()">儲存</button>
     </div>
     <p class="status" id="status">尚未 connect</p>
+    <p class="err">⚠️ 請只填 base URL，例如：http://127.0.0.1:5678 。唔好加 /dashboard/dashboard.html</p>
   </div>
   <div class="card">
     <b>健康檢查</b>
@@ -36,25 +39,27 @@
       return apiBaseInput.value.trim() || localStorage.getItem(STORAGE_KEY) || '';
     }
     function saveBase() {
-      const v = apiBaseInput.value.trim();
+      const v = apiBaseInput.value.trim().replace(/\/+$/, '').replace(/\/dashboard\/.*$/, '');
+      apiBaseInput.value = v;
       if (v) localStorage.setItem(STORAGE_KEY, v);
       statusEl.textContent = '已設定：' + (v || '(空)');
+      statusEl.className = 'status';
     }
-    apiBaseInput.value = localStorage.getItem(STORAGE_KEY) || '';
+    apiBaseInput.value = localStorage.getItem(STORAGE_KEY) || 'http://127.0.0.1:5678';
 
     async function checkHealth() {
       const base = getBase();
       if (!base) { healthEl.textContent = '請先輸入後端 Base URL'; return; }
       try {
-        const r = await fetch(base.replace(/\/$/, '') + '/health');
+        const r = await fetch(base + '/health');
         const j = await r.json();
         healthEl.textContent = JSON.stringify(j, null, 2);
         statusEl.textContent = '連線成功：' + base;
-        statusEl.style.color = '#1b5e20';
+        statusEl.className = 'status ok';
       } catch (e) {
         healthEl.textContent = '連線失敗：' + e.message;
         statusEl.textContent = '連線失敗';
-        statusEl.style.color = '#b71c1c';
+        statusEl.className = 'status err';
       }
     }
     if (getBase()) checkHealth();
