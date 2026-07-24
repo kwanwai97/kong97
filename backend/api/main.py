@@ -93,12 +93,39 @@ def 大腦狀態() -> Dict[str, Any]:
     model = getattr(llm, "model", "") if llm else ""
     key = getattr(llm, "openai_api_key", "") if llm else ""
     provider = "openai" if key else "ollama" if model else "none"
+    checks = {
+        "model_loaded": bool(model),
+        "openai_key_loaded": bool(key),
+        "base_url": host,
+        "provider": provider,
+    }
+    # 真實驗證 LLM 可否連線
+    ok = False
+    latency_ms = 0
+    try:
+        import time as _time
+        t0 = _time.time()
+        probe = asyncio.run(正反合.answer("你好，請回覆『連接成功』四個字。", context=""))
+        latency_ms = int((_time.time() - t0) * 1000)
+        txt = (probe[0] or "").strip()
+        ok = len(txt) > 0
+        checks.setdefault("probe_prompt", "你好，請回覆『連接成功』四個字。")
+        checks.setdefault("probe_reply", txt[:120])
+    except Exception as e:
+        checks.setdefault("probe_error", str(e)[:200])
+        ok = False
+        provider = provider + "_probe_failed"
+    checks["可用"] = ok
+    checks["延遲"] = latency_ms
+    if not ok:
+        provider = "none"
     return {
         "llm_host": host,
         "llm_model": model,
-        "已啟動": bool(model),
+        "已啟動": ok,
         "provider": provider,
         "openai_key_loaded": bool(key),
+        "checks": checks,
     }
 
 @app.get("/")
