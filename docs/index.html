@@ -3,45 +3,65 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Digital Twin · 身份儀表板</title>
+<title>Digital Twin · 你的身份助手</title>
 <style>
-  body{font-family:"Microsoft JhengHei",sans-serif;max-width:980px;margin:18px auto;padding:0 16px;color:#1f1f1f;background:#f7f8fb}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Microsoft JhengHei","PingFang HK",sans-serif;max-width:980px;margin:18px auto;padding:0 16px;color:#1f1f1f;background:#f7f8fb}
   .card{border:1px solid #d8dce6;padding:14px;border-radius:10px;background:#fff;margin:10px 0;box-shadow:0 1px 2px rgba(0,0,0,0.03)}
-  button{margin:4px;padding:8px 12px;border:0;border-radius:8px;background:#2276d6;color:#fff;cursor:pointer}
-  button.secondary{background:#6a737d}
+  button{margin:4px;padding:10px 14px;border:0;border-radius:8px;background:#2276d6;color:#fff;cursor:pointer;font-size:1rem}
+  button.secondary{background:#6a737d;font-size:.95rem}
   button.danger{background:#c0392b}
-  input,textarea,select{margin:4px;padding:8px;border:1px solid #ccd2dc;border-radius:8px;min-width:180px}
-  pre{background:#f5f7fa;padding:10px;border-radius:8px;overflow:auto}
+  input,textarea,select{margin:4px;padding:10px;border:1px solid #ccd2dc;border-radius:8px;min-width:120px;font-size:.95rem}
+  select{min-width:140px}
+  pre{background:#f5f7fa;padding:10px;border-radius:8px;overflow:auto;font-size:.9rem}
   .ok{color:#1b5e20}.err{color:#b71c1c}.meta{color:#6a737d;font-size:.9em}
   .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
   @media(max-width:780px){.grid{grid-template-columns:1fr}}
   .hidden{display:none}
   .tag{display:inline-block;background:#eef3ff;color:#224;padding:3px 10px;border-radius:999px;font-size:.82em;margin-left:8px}
-  .pill{border-radius:999px;padding:6px 14px;background:#e9f0ff;color:#1a237e;font-weight:600}
+  .pill{border-radius:999px;padding:6px 14px;background:#e9f0ff;color:#1a237e;font-weight:600;font-size:.85rem}
   .list-item{border-bottom:1px dashed #e6e8ee;padding:8px 0}
   .list-item b{color:#1f2d3d}
+  .hint{background:#eef7ff;border-left:4px solid #2276d6;padding:10px 12px;border-radius:0 8px 8px 0;margin:6px 0;font-size:.92rem;color:#1a3a5c}
+  .hint b{color:#2276d6}
+  .step{display:inline-block;background:#2276d6;color:#fff;width:22px;height:22px;border-radius:50%;text-align:center;line-height:22px;font-size:.85rem;margin-right:6px}
 </style>
 </head>
 <body>
-<h1>Digital Twin · 身份儀表板</h1>
+<h1>Digital Twin · 你的身份助手</h1>
+
+<!-- Onboarding Banner -->
+<div id="onboarding" class="card" style="background:#eef7ff;border-color:#2276d6">
+  <b>👋 歡迎！這是你的 2 分鐘快速開始</b>
+  <div style="margin-top:10px;font-size:.95rem">
+    <div><span class="step">1</span><b>填寫個人檔案</b> — 在下方「關於我」選擇你的風險偏好與時間視野，按「保存」。</div>
+    <div style="margin-top:6px"><span class="step">2</span><b>加入個人事實</b> — 在「個人資料庫」加入 3 筆資料，例如：城市=香港、興趣=打字員、目標=減肥。</div>
+    <div style="margin-top:6px"><span class="step">3</span><b>記錄第一個決策</b> — 在「今日決定」輸入你今日做過的任何決定，例如：今晚食乜、工作计划等。</div>
+    <div style="margin-top:6px"><span class="step">4</span><b>寫日誌</b> — 在「今日反思」寫 1-2 句今天發生了什麼事。</div>
+    <div style="margin-top:6px"><span class="step">5</span><b>按「分析盲點」</b> — 系統會根據你嘅資料，分析你有冇 blind spot。</div>
+  </div>
+  <button class="secondary" style="margin-top:12px" onclick="document.getElementById('onboarding').style.display='none'">我明白了，開始使用</button>
+</div>
+
 <div id="authSection">
   <div class="card">
     <h2>登入 / 註冊</h2>
-    <input id="user" placeholder="帳號">
-    <input id="pass" type="password" placeholder="密碼">
-    <input id="display" placeholder="顯示名稱（選填）">
-    <div>
+    <div class="hint">第一次使用請先註冊，之後用同一帳號登入即可查看你的所有記錄。</div>
+    <input id="user" placeholder="帳號（隨便打，例如 kwan）">
+    <input id="pass" type="password" placeholder="密碼（隨便打）">
+    <input id="display" placeholder="你的名稱（選填）">
+    <div style="margin-top:8px">
       <button id="loginBtn">登入</button>
-      <button id="registerBtn" class="secondary">註冊</button>
+      <button id="registerBtn" class="secondary">註冊新帳號</button>
     </div>
-    <div id="authMsg" class="meta"></div>
-    <div class="meta">🔒 開發模式 token，勿用於正式環境。</div>
+    <div id="authMsg" class="meta" style="margin-top:8px"></div>
   </div>
 </div>
+
 <div id="app" class="hidden">
   <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
     <div>
-      <b id="greet">您好</b> <span id="userName" class="meta"></span>
+      <b id="greet">您好</b> <span id="userName" class="pill"></span>
       <div class="meta" id="tokenMeta"></div>
     </div>
     <div>
@@ -50,63 +70,90 @@
   </div>
 
   <div class="grid">
+    <!-- About Me -->
     <div class="card">
-      <b>個人檔案</b> <span id="profileTags" class="tag"> risking/medium time/medium </span>
+      <b>🙋 關於我</b>
+      <div class="hint">先設定你的基本性格，系統會根據呢啲資料給你個人化建議。</div>
       <div style="margin-top:8px">
-        <select id="risk"><option value="">風險偏好</option><option value="low">低</option><option value="medium" selected>中</option><option value="high">高</option></select>
-        <select id="horizon"><option value="">時間視野</option><option value="short">短</option><option value="medium" selected>中</option><option value="long">長</option></select>
-        <button id="saveProfileBtn" class="secondary">存檔</button>
+        <select id="risk">
+          <option value="">風險偏好</option>
+          <option value="low">🟢 保守 — 唔敢冒險</option>
+          <option value="medium" selected>🟡 中等 — 適度冒險</option>
+          <option value="high">🔴 進取 — 愿意冒險</option>
+        </select>
+        <select id="horizon">
+          <option value="">時間視野</option>
+          <option value="short">短期（今日/呢週）</option>
+          <option value="medium" selected>中期（幾個月）</option>
+          <option value="long">長期（一年以上）</option>
+        </select>
+        <button id="saveProfileBtn" class="secondary">保存</button>
       </div>
       <pre id="profile" style="max-height:180px">尚無檔案</pre>
     </div>
 
+    <!-- Personal Facts -->
     <div class="card">
-      <b>個人事實</b>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <input id="factKey" placeholder="key">
-        <input id="factValue" placeholder="value">
-        <select id="factCat"><option value="bio">bio</option><option value="pref">pref</option><option value="constraint">constraint</option></select>
+      <b>📚 個人資料庫</b>
+      <div class="hint">加入一些關於你的事實。系統會記住呢啲資料，唔使你每次重複解釋。</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+        <input id="factKey" placeholder="資料名稱，例如：城市">
+        <input id="factValue" placeholder="內容，例如：香港">
+        <select id="factCat">
+          <option value="bio">個人</option>
+          <option value="pref">偏好</option>
+          <option value="constraint">限制</option>
+          <option value="goal">目標</option>
+        </select>
         <button id="addFactBtn" class="secondary">＋ 加入</button>
       </div>
-      <pre id="facts" style="max-height:180px">尚無事實</pre>
+      <pre id="facts" style="max-height:180px">尚無資料</pre>
     </div>
 
+    <!-- Decisions -->
     <div class="card">
-      <b>決策紀錄</b>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <input id="dTopic" placeholder="主題">
-        <input id="dChoice" placeholder="選擇">
-        <input id="dReason" placeholder="理由">
-        <input id="dTags" placeholder="標籤（逗號分隔）">
-        <button id="addDecisionBtn" class="secondary">＋ 決策</button>
+      <b>🎯 今日決定</b>
+      <div class="hint">做咗任何決定就打上來，無論大小。例如：今晚食乜、點樣應對同事、買唔買呢樣嘢。系統會追蹤你嘅決策模式。</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <input id="dTopic" placeholder="決定邊方面，例如：今晚食乜">
+        <input id="dChoice" placeholder="你揀咗咩，例如：壽司">
+        <input id="dReason" placeholder="點解揀呢個（可空）">
+        <input id="dTags" placeholder="標籤（可空）" style="min-width:120px">
+        <button id="addDecisionBtn" class="secondary">＋ 記錄</button>
       </div>
-      <div id="decisions" style="max-height:240px;overflow:auto"></div>
+      <div id="decisions" style="max-height:240px;overflow:auto;margin-top:8px">尚無決定</div>
     </div>
 
+    <!-- Diary -->
     <div class="card">
-      <b>日誌</b>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <input id="logEntries" placeholder="一則日誌（按＋新增多則）" style="min-width:260px">
-        <button id="addLogBtn" class="secondary">＋ 新增日誌</button>
+      <b>📝 今日反思</b>
+      <div class="hint">每天寫幾句發生了什麼事。唔需要很長，系統會自動分析你嘅情緒同模式。</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+        <input id="logEntries" placeholder="今日發生咗咩，例如：今天繼續做 digital twin，加了新功能。然後去咗飲茶。" style="min-width:260px">
+        <button id="addLogBtn" class="secondary">＋ 新增</button>
         <button id="refreshLogBtn" class="secondary">重整</button>
       </div>
-      <pre id="logs" style="max-height:180px">尚無日誌</pre>
+      <pre id="logs" style="max-height:180px">尚無反思</pre>
     </div>
 
+    <!-- Blindspots -->
     <div class="card">
-      <b>盲點訊號</b>
+      <b>🔍 盲點探測</b>
+      <div class="hint">系統會從你嘅決策同日誌中，搵出你可能冇察覺嘅模式。例如：拖延、重複犯錯、偏見。</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button id="analyzeBtn">🔍 分析盲點</button>
+        <button id="analyzeBtn">🔍 開始分析</button>
         <button id="refreshBlindBtn" class="secondary">重整</button>
       </div>
       <div id="blindspots" style="max-height:240px;overflow:auto">尚無訊號</div>
     </div>
 
+    <!-- Decision Outcomes -->
     <div class="card">
-      <b>決策成果</b>
+      <b>📊 決定結果</b>
+      <div class="hint">當你嘅決定有結果時，回來填寫。系統會學習你嘅決策質素。</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <input id="outcomeDid" placeholder="decision_id">
-        <input id="outcomeValue" placeholder="結果描述">
+        <input id="outcomeDid" placeholder="decision_id（由系統產生）">
+        <input id="outcomeValue" placeholder="結果，例如：成功/失敗/還好">
         <button id="outcomeBtn" class="secondary">＋ 記錄成果</button>
         <button id="refreshDecisionBtn" class="secondary">重整</button>
       </div>
@@ -114,160 +161,33 @@
     </div>
   </div>
 </div>
-
 <script>
-const TOKEN = 'digital-twin-token';
-const BASE_KEY = 'digital-twin-api-base';
-let token = localStorage.getItem(TOKEN) || '';
-function base(){
-  return location.origin;
-}
-function authHeaders(){
-  const h = {'Content-Type':'application/json'};
-  if(token) h['X-User-Token'] = token;
-  return h;
-}
-async function api(path, opts={}){
-  const url = base() + path;
-  const res = await fetch(url, { ...opts, headers: { ...authHeaders(), ...(opts.headers||{}) } });
-  if(!res.ok){
-    const text = await res.text().catch(()=>'');
-    let msg = text;
-    try{ const j=JSON.parse(text); msg=j.detail||j.error||text; }catch(e){}
-    throw new Error('HTTP ' + res.status + ' ' + msg);
-  }
-  if(res.status===204) return null;
-  return res.json();
-}
+const TOKEN_KEY='digital-twin-token';
+let token=localStorage.getItem(TOKEN_KEY)||'';
+function base(){ return location.origin; }
+function authHeaders(){ const h={'Content-Type':'application/json'}; if(token) h['X-User-Token']=token; return h; }
+async function api(path, opts={}){ const url=base()+path; const res=await fetch(url,{...opts, headers:{ ...authHeaders(), ...(opts.headers||{}) }}); if(!res.ok){ const text=await res.text().catch(()=>''); let msg=text; try{ const j=JSON.parse(text); msg=j.detail||j.error||text; }catch(e){} throw new Error('HTTP '+res.status+' '+msg); } if(res.status===204) return null; return res.json(); }
 function setText(id,txt,c){ const el=document.getElementById(id); if(!el)return; el.textContent=txt; if(c) el.className=c; }
 function setHtml(id,html){ const el=document.getElementById(id); if(!el)return; el.innerHTML=html; }
-
-function showApp(user){
-  document.getElementById('authSection').classList.add('hidden');
-  document.getElementById('app').classList.remove('hidden');
-  document.getElementById('userName').textContent = user.username + ' · ' + user.user_id;
-  document.getElementById('tokenMeta').textContent = 'Token：已載入（本地）';
-  setText('profile','讀取中...','meta');
-  setText('facts','讀取中...','meta');
-  setText('logs','讀取中...','meta');
-  setHtml('decisions','讀取中...');
-  setHtml('decisionsOutcome','讀取中...');
-  setHtml('blindspots','讀取中...');
-  api('/identity/profile').then(d=>{
-    setText('profile', JSON.stringify(d, null, 2));
-    if(d.risk_tolerance) document.getElementById('risk').value = d.risk_tolerance;
-    if(d.time_horizon) document.getElementById('horizon').value = d.time_horizon;
-  }).catch(e=>setText('profile','讀取失敗：'+e.message,'err'));
-  api('/identity/facts').then(d=>renderFacts(d)).catch(e=>setText('facts','讀取失敗：'+e.message,'err'));
-  api('/identity/decisions').then(d=>renderDecisions(d)).catch(e=>setText('decisions','讀取失敗：'+e.message,'err'));
-  api('/identity/daily-log?days=14').then(d=>renderLogs(d)).catch(e=>setText('logs','讀取失敗：'+e.message,'err'));
-  api('/identity/blindspots').then(d=>renderBlindspots(d)).catch(e=>setHtml('blindspots','讀取失敗：'+e.message)).catch(()=>{});
-  refreshDecisionsWithOutcome();
-}
-
-function renderFacts(d){
-  const rows = Array.isArray(d.事實)?d.事實:[];
-  if(!rows.length){ setText('facts','尚無事實','meta'); return; }
-  setHtml('facts', rows.map(r=>`[${r.category}] ${r.key}: ${r.value}`).join('\n'));
-}
-function renderDecisions(d){
-  const rows = Array.isArray(d.決策)?d.決策:[];
-  if(!rows.length){ setHtml('decisions','尚無決策'); return; }
-  setHtml('decisions', rows.map(r=>`<div class=\"list-item\"><b>${r.topic||''}</b> → ${r.choice||''}<br><small class=\"meta\">${r.reasoning||''}<br>${r.outcome?('成果：'+r.outcome):'尚未記錄成果'} ${r.tags?(' · '+r.tags.join(',')):''} · ${r.created_at||''}</small></div>`).join(''));
-}
-function renderLogs(d){
-  const rows = Array.isArray(d.日誌)?d.日誌:[];
-  if(!rows.length){ setText('logs','尚無日誌','meta'); return; }
-  setHtml('logs', rows.map(r=>`[${r.date}] ${JSON.stringify(r.entries||[])}`).join('\n'));
-}
-function renderBlindspots(d){
-  const rows = Array.isArray(d.盲點訊號)?d.盲點訊號:[];
-  if(!rows.length){ setHtml('blindspots','尚無訊號'); return; }
-  setHtml('blindspots', rows.map(r=>`<div class=\"list-item\"><b>${r.pattern||r.id}</b> · ${r.severity||''} · ${r.status||''}<br><small class=\"meta\">${(r.evidence||[]).join(' | ')}</small></div>`).join(''));
-}
-function refreshDecisionsWithOutcome(){
-  api('/identity/decisions').then(d=>{
-    const rows = Array.isArray(d.決策)?d.決策:[];
-    const withOutcome = rows.filter(r=>r.outcome);
-    setHtml('decisionsOutcome', withOutcome.length ? rows.map(r=>`<div class=\"list-item\"><b>${r.id}</b> ${r.topic||''} → ${r.choice||''}<br><small class=\"meta\">成果：${r.outcome||'無'} ${r.outcome_recorded_at||''}</small></div>`).join('') : '尚無成果記錄');
-  }).catch(()=>setHtml('decisionsOutcome','重整失敗'));
-}
-
-document.getElementById('loginBtn').onclick=async()=>{
-  const u=document.getElementById('user').value.trim();
-  const p=document.getElementById('pass').value;
-  if(!u||!p){alert('請輸入帳號與密碼');return;}
-  try{
-    const j = await api('/auth/login',{method:'POST',body:JSON.stringify({username:u,password:p})});
-    token = j.token; localStorage.setItem(TOKEN,token);
-    setText('authMsg','登入成功：'+j.username,'ok'); showApp(j);
-  }catch(e){ setText('authMsg','登入失敗：'+e.message,'err'); }
-};
-document.getElementById('registerBtn').onclick=async()=>{
-  const u=document.getElementById('user').value.trim();
-  const p=document.getElementById('pass').value;
-  const d=document.getElementById('display').value.trim();
-  if(!u||!p){alert('請輸入帳號與密碼');return;}
-  try{
-    const j = await api('/auth/register',{method:'POST',body:JSON.stringify({username:u,password:p,display_name:d})});
-    setText('authMsg','註冊成功，請登入','ok');
-  }catch(e){ setText('authMsg','註冊失敗：'+e.message,'err'); }
-};
-document.getElementById('logoutBtn').onclick=()=>{ token=''; localStorage.removeItem(TOKEN); location.reload(); };
-document.getElementById('saveProfileBtn').onclick=async()=>{
-  const risk=document.getElementById('risk').value;
-  const horizon=document.getElementById('horizon').value;
-  const body={risk_tolerance:risk,time_horizon:horizon};
-  try{
-    const j = await api('/identity/profile',{method:'PATCH',body:JSON.stringify(body)});
-    setText('profile',JSON.stringify(j,null,2),'ok');
-  }catch(e){ setText('profile','儲存失敗：'+e.message,'err'); }
-};
-document.getElementById('addFactBtn').onclick=async()=>{
-  const key=document.getElementById('factKey').value.trim();
-  const value=document.getElementById('factValue').value.trim();
-  const category=document.getElementById('factCat').value;
-  if(!key||!value){alert('請輸入 key 與 value');return;}
-  try{ const j=await api('/identity/facts',{method:'POST',body:JSON.stringify({category,key,value})}); document.getElementById('factKey').value=''; document.getElementById('factValue').value=''; api('/identity/facts').then(d=>renderFacts(d)); }catch(e){alert(e.message);}
-};
-document.getElementById('addDecisionBtn').onclick=async()=>{
-  const topic=document.getElementById('dTopic').value.trim();
-  const choice=document.getElementById('dChoice').value.trim();
-  const reason=document.getElementById('dReason').value.trim();
-  const tags=document.getElementById('dTags').value.split(',').map(s=>s.trim()).filter(Boolean);
-  if(!topic||!choice){alert('請輸入主題與選擇');return;}
-  try{ await api('/identity/decisions',{method:'POST',body:JSON.stringify({topic,choice,reasoning:reason,tags})}); document.getElementById('dReason').value=''; document.getElementById('dTags').value=''; api('/identity/decisions').then(d=>renderDecisions(d)); }catch(e){alert(e.message);}
-};
-document.getElementById('addLogBtn').onclick=async()=>{
-  const text=document.getElementById('logEntries').value.trim();
-  if(!text){alert('請輸入日誌內容');return;}
-  try{ await api('/identity/daily-log',{method:'POST',body:JSON.stringify({entries:[text]})}); document.getElementById('logEntries').value=''; api('/identity/daily-log?days=14').then(d=>renderLogs(d)); }catch(e){alert(e.message);}
-};
+function showApp(user){ document.getElementById('authSection').classList.add('hidden'); document.getElementById('app').classList.remove('hidden'); document.getElementById('greet').textContent = '👋 您好，'+ (user.display_name||user.username); document.getElementById('userName').textContent = '@'+user.username; document.getElementById('tokenMeta').textContent = 'Token：已載入（本地）'; setText('profile','讀取中...','meta'); setText('facts','讀取中...','meta'); setText('logs','讀取中...','meta'); setHtml('decisions','讀取中...'); setHtml('decisionsOutcome','讀取中...'); setHtml('blindspots','尚無訊號，等你記錄後按「開始分析」'); api('/identity/profile').then(d=>{ setText('profile', JSON.stringify(d, null, 2)); if(d.risk_tolerance) document.getElementById('risk').value = d.risk_tolerance; if(d.time_horizon) document.getElementById('horizon').value = d.time_horizon; }).catch(e=>setText('profile','讀取失敗：'+e.message,'err')); api('/identity/facts').then(d=>renderFacts(d)).catch(e=>setText('facts','讀取失敗：'+e.message,'err')); api('/identity/decisions').then(d=>renderDecisions(d)).catch(e=>setHtml('decisions','尚無決定，記錄第一個吧！')); api('/identity/daily-log?days=14').then(d=>renderLogs(d)).catch(e=>setText('logs','尚無反思')); api('/identity/blindspots').then(d=>renderBlindspots(d)).catch(e=>setHtml('blindspots','尚無訊號，等你記錄後按「開始分析」')); refreshDecisionsWithOutcome(); }
+function renderFacts(d){ const rows=Array.isArray(d.事實)?d.事實:[]; if(!rows.length){ setText('facts','尚無資料，按上方「＋ 加入」開始','meta'); return; } setHtml('facts', rows.map(r=>'['+r.category+'] '+r.key+': '+r.value).join('\\n')); }
+function renderDecisions(d){ const rows=Array.isArray(d.決策)?d.決策:[]; if(!rows.length){ setHtml('decisions','尚無決定，記錄第一個吧！'); return; } setHtml('decisions', rows.map(r=>'<div class=\"list-item\"><b>'+(r.topic||'')+'</b> → '+(r.choice||'')+'<br><small class=\"meta\">'+(r.reasoning||'')+'<br>'+(r.outcome?('✅ 成果：'+r.outcome):'⏳ 尚未記錄成果')+' '+(r.tags?(' · '+r.tags.join(',')):'')+'<br>'+(r.created_at||'')+'</small></div>').join('')); }
+function renderLogs(d){ const rows=Array.isArray(d.日誌)?d.日誌:[]; if(!rows.length){ setText('logs','尚無反思，寫幾句今天發生什麼事吧','meta'); return; } setHtml('logs', rows.map(r=>'['+r.date+'] '+JSON.stringify(r.entries||[])).join('\\n')); }
+function renderBlindspots(d){ const rows=Array.isArray(d.盲點訊號)?d.盲點訊號:[]; if(!rows.length){ setHtml('blindspots','尚無訊號，等你記錄後按「開始分析」'); return; } setHtml('blindspots', rows.map(r=>'<div class=\"list-item\"><b>'+(r.pattern||r.id)+'</b> · '+(r.severity||'')+' · '+(r.status||'')+'<br><small class=\"meta\">'+(r.evidence||[]).join(' | ')+'</small></div>').join('')); }
+function refreshDecisionsWithOutcome(){ api('/identity/decisions').then(d=>{ const rows=Array.isArray(d.決策)?d.決策:[]; const withOutcome=rows.filter(r=>r.outcome); setHtml('decisionsOutcome', withOutcome.length ? rows.map(r=>'<div class=\"list-item\"><b>'+r.id+'</b> '+(r.topic||'')+' → '+(r.choice||'')+'<br><small class=\"meta\">'+(r.outcome?'✅ '+r.outcome:'⏳ 尚未記錄成果')+' '+(r.outcome_recorded_at||'')+'</small></div>').join('') : '尚無成果，當決定有結果時回來記錄吧！'); }).catch(()=>setHtml('decisionsOutcome','重整失敗')); }
+document.getElementById('loginBtn').onclick=async()=>{ const u=document.getElementById('user').value.trim(); const p=document.getElementById('pass').value; if(!u||!p){alert('請輸入帳號與密碼');return;} try{ const j=await api('/auth/login',{method:'POST',body:JSON.stringify({username:u,password:p})}); token=j.token; localStorage.setItem(TOKEN_KEY,token); setText('authMsg','登入成功：'+j.username,'ok'); showApp(j); }catch(e){ setText('authMsg','登入失敗：'+e.message,'err'); } };
+document.getElementById('registerBtn').onclick=async()=>{ const u=document.getElementById('user').value.trim(); const p=document.getElementById('pass').value; const d=document.getElementById('display').value.trim(); if(!u||!p){alert('請輸入帳號與密碼');return;} try{ const j=await api('/auth/register',{method:'POST',body:JSON.stringify({username:u,password:p,display_name:d})}); setText('authMsg','✅ 註冊成功，請按登入','ok'); }catch(e){ setText('authMsg','註冊失敗：'+e.message,'err'); } };
+document.getElementById('logoutBtn').onclick=()=>{ token=''; localStorage.removeItem(TOKEN_KEY); location.reload(); };
+document.getElementById('saveProfileBtn').onclick=async()=>{ const risk=document.getElementById('risk').value; const horizon=document.getElementById('horizon').value; const body={risk_tolerance:risk,time_horizon:horizon}; try{ const j=await api('/identity/profile',{method:'PATCH',body:JSON.stringify(body)}); setText('profile',JSON.stringify(j,null,2),'ok'); }catch(e){ setText('profile','儲存失敗：'+e.message,'err'); } };
+document.getElementById('addFactBtn').onclick=async()=>{ const key=document.getElementById('factKey').value.trim(); const value=document.getElementById('factValue').value.trim(); const category=document.getElementById('factCat').value; if(!key||!value){alert('請輸入資料名稱與內容');return;} try{ const j=await api('/identity/facts',{method:'POST',body:JSON.stringify({category,key,value})}); document.getElementById('factKey').value=''; document.getElementById('factValue').value=''; api('/identity/facts').then(d=>renderFacts(d)); }catch(e){alert(e.message);} };
+document.getElementById('addDecisionBtn').onclick=async()=>{ const topic=document.getElementById('dTopic').value.trim(); const choice=document.getElementById('dChoice').value.trim(); const reason=document.getElementById('dReason').value.trim(); const tags=document.getElementById('dTags').value.split(',').map(s=>s.trim()).filter(Boolean); if(!topic||!choice){alert('請輸入決定同你揀咗咩');return;} try{ await api('/identity/decisions',{method:'POST',body:JSON.stringify({topic,choice,reasoning:reason,tags})}); document.getElementById('dReason').value=''; document.getElementById('dTags').value=''; api('/identity/decisions').then(d=>renderDecisions(d)); }catch(e){alert(e.message);} };
+document.getElementById('addLogBtn').onclick=async()=>{ const text=document.getElementById('logEntries').value.trim(); if(!text){alert('請輸入反思內容');return;} try{ await api('/identity/daily-log',{method:'POST',body:JSON.stringify({entries:[text]})}); document.getElementById('logEntries').value=''; api('/identity/daily-log?days=14').then(d=>renderLogs(d)); }catch(e){alert(e.message);} };
 document.getElementById('refreshLogBtn').onclick=()=>api('/identity/daily-log?days=14').then(d=>renderLogs(d)).catch(()=>{});
 document.getElementById('refreshDecisionBtn').onclick=()=>refreshDecisionsWithOutcome();
-document.getElementById('analyzeBtn').onclick=async()=>{
-  try{
-    const j = await api('/identity/blindspots/analyze',{method:'POST'});
-    setText('authMsg','已更新盲點訊號 '+JSON.stringify(j.已產生?.length)+' 個','ok');
-    api('/identity/blindspots').then(d=>renderBlindspots(d));
-  }catch(e){ alert('分析失敗：'+e.message); }
-};
+document.getElementById('analyzeBtn').onclick=async()=>{ try{ const j=await api('/identity/blindspots/analyze',{method:'POST',headers:{Accept:'application/json'}}); setText('authMsg','✅ 已更新盲點訊號 '+(j.已產生?.length ?? 0)+' 個','ok'); api('/identity/blindspots').then(d=>renderBlindspots(d)); }catch(e){ alert('分析失敗：'+e.message); } };
 document.getElementById('refreshBlindBtn').onclick=()=>api('/identity/blindspots').then(d=>renderBlindspots(d)).catch(()=>{});
-document.getElementById('outcomeBtn').onclick=async()=>{
-  const did=document.getElementById('outcomeDid').value.trim();
-  const value=document.getElementById('outcomeValue').value.trim();
-  if(!did||!value){alert('請輸入 decision_id 與成果');return;}
-  try{ await api('/identity/decisions/outcome',{method:'POST',body:JSON.stringify({decision_id:did,outcome:value})}); document.getElementById('outcomeDid').value=''; document.getElementById('outcomeValue').value=''; refreshDecisionsWithOutcome(); }catch(e){alert(e.message);}
-};
-
-(function autologin(){
-  if(!token) return;
-  try{
-    const j = JSON.parse(localStorage.getItem(TOKEN+'_user')||'null');
-    if(j){ showApp(j); return; }
-  }catch(e){}
-  document.getElementById('authMsg').textContent='Token 載入，請按登入驗證';
-})();
+document.getElementById('outcomeBtn').onclick=async()=>{ const did=document.getElementById('outcomeDid').value.trim(); const value=document.getElementById('outcomeValue').value.trim(); if(!did||!value){alert('請輸入 decision_id 與成果');return;} try{ await api('/identity/decisions/outcome',{method:'POST',body:JSON.stringify({decision_id:did,outcome:value})}); document.getElementById('outcomeDid').value=''; document.getElementById('outcomeValue').value=''; refreshDecisionsWithOutcome(); }catch(e){alert(e.message);} };
+(function autologin(){ if(!token) return; try{ const j=JSON.parse(localStorage.getItem(TOKEN_KEY+'_user')||'null'); if(j){ showApp(j); return; } }catch(e){} document.getElementById('authMsg').textContent='Token 載入，請按登入驗證'; })();
 </script>
 </body>
 </html>
