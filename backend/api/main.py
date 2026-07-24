@@ -32,6 +32,7 @@ from backend.explorer.translator import translate_item, translate_briefing
 from backend.safety.human_in_the_loop import HumanInTheLoop
 from backend import identity as identity_module
 from backend import auth as auth_module
+from backend.paywall import enforce, get_limits, get_usage, get_tier, cleanup_old_backups
 
 HITL = HumanInTheLoop()
 
@@ -353,6 +354,9 @@ def 取得決策紀錄(user: Dict[str, Any] = Depends(取得使用者), limit: i
 @app.post("/identity/decisions")
 def 新增決策(資料: Dict[str, Any], user: Dict[str, Any] = Depends(取得使用者)) -> Dict[str, Any]:
     uid = user["user_id"]
+    chk = enforce(uid, "decisions")
+    if not chk.get("allowed"):
+        raise HTTPException(status_code=429, detail={"error": "limit_exceeded", "tier": chk.get("tier"), "limit": chk.get("limit"), "used": chk.get("used"), "upgrade_url": chk.get("upgrade_url")})
     topic = 資料.get("topic", "")
     choice = 資料.get("choice", "")
     reasoning = 資料.get("reasoning", "")
@@ -524,3 +528,16 @@ def 快速捕捉(user: Dict[str, Any] = Depends(取得使用者), 資料: Dict[s
     text = str(資料.get("text", "") or "")
     kind = str(資料.get("kind", "quick") or "quick")
     return get_runner(uid).quick_capture(text, kind=kind)
+
+
+# Paywall / Usage endpoints
+
+@app.get("/identity/usage")
+def 用量概覽(user: Dict[str, Any] = Depends(取得使用者)) -> Dict[str, Any]:
+    uid = user["user_id"]
+    return {"用戶": uid, "階層": get_tier(uid), "限制": get_limits(uid), "用量": get_usage(uid)}
+
+
+@app.get("/identity/upgrade")
+def 升級頁() -> Dict[str, Any]:
+    return {"message": "upgrade to pro", "url": "/frontend/landing.html", "price": "$9/month"}
