@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-記憶圖譜 - 分散式知識庫
+Memory Graph - 分散式知識庫（去重 + 摘要）
 """
 from __future__ import annotations
 
@@ -38,9 +38,12 @@ class MemoryGraph:
 
     def upsert(self, 節點: Dict[str, Any]) -> None:
         圖譜 = self.load()
-        節點.setdefault("id", 雜湊(節點.get("text", "")))
-        圖譜.append(節點)
-        self.save(圖譜)
+        文字 = str(節點.get("text") or 節點.get("content") or "")
+        節點.setdefault("id", 雜湊(文字))
+        # 去重：相同 id 不重複 append
+        if not any(n.get("id") == 節點["id"] for n in 圖譜):
+            圖譜.append(節點)
+            self.save(圖譜)
 
     def search(self, 關鍵字: str) -> List[Dict[str, Any]]:
         關鍵字 = 關鍵字.lower()

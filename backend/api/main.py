@@ -15,10 +15,11 @@ load_dotenv()
 
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse, FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from backend.brain.thesis import ThesisEngine
+from backend.brain.thesis import ThesisEngine, _default_thesis, _default_antithesis, _default_synthesis
 from backend.brain.antithesis import antithesis
 from backend.brain.synthesis import synthesis
 from backend.brain.memory_graph import MemoryGraph
@@ -30,7 +31,17 @@ from backend.explorer.briefing import build_briefing
 from backend.explorer.translator import translate_item, translate_briefing
 from backend.safety.human_in_the_loop import HumanInTheLoop
 
+HITL = HumanInTheLoop()
+
 app = FastAPI(title="Digital Twin API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.middleware("http")
 async def add_cache_headers(request, call_next):
@@ -45,7 +56,7 @@ async def add_cache_headers(request, call_next):
 會話記憶 = SessionMemory()
 巡邏者 = NightWanderer()
 對齊器 = PeerAlignment()
-協同器 = HumanInTheLoop()
+協同器 = HITL
 財經fetcher = FinancialFetcher()
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -77,13 +88,18 @@ def 健康檢查() -> Dict[str, str]:
 @app.get("/brain/status")
 def 大腦狀態() -> Dict[str, Any]:
     engine = 正反合
-    status = {
-        "llm_host": getattr(getattr(engine, "llm", None), "base_url", ""),
-        "llm_model": getattr(getattr(engine, "llm", None), "model", ""),
-        "已啟動": bool(getattr(getattr(engine, "llm", None), "model", "")),
+    llm = getattr(engine, "llm", None)
+    host = getattr(llm, "base_url", "") if llm else ""
+    model = getattr(llm, "model", "") if llm else ""
+    key = getattr(llm, "openai_api_key", "") if llm else ""
+    provider = "openai" if key else "ollama" if model else "none"
+    return {
+        "llm_host": host,
+        "llm_model": model,
+        "已啟動": bool(model),
+        "provider": provider,
+        "openai_key_loaded": bool(key),
     }
-    return status
-
 
 @app.get("/")
 def 首頁() -> RedirectResponse:
@@ -104,10 +120,38 @@ def 存入記憶(訊息_: 訊息) -> Dict[str, Any]:
 @app.post("/dialectic")
 def 辯證(訊息_: 訊息) -> Dict[str, Any]:
     正反合.ingest(訊息_.text)
-    正, 主題 = asyncio.run(正反合.answer(訊息_.text))
-    反 = asyncio.run(antithesis.challenge(正, topic=主題))
-    整合 = asyncio.run(synthesis.fuse(正, 反, topic=主題))
-    return {"正方": 正, "反方": 反, "整合結論": 整合}
+    情報 = ""
+    try:
+        raw = 巡邏者.crawl(["arxiv", "github", "hackernews"])
+        項目 = [translate_item(it) for it in raw]
+        lines = []
+        for it in 項目[:6]:
+            title = it.get("title", "") or it.get("標題", "")
+            summary = it.get("summary", "") or it.get("摘要", "")
+            if title:
+                lines.append(f"{title}: {summary}")
+        情報 = "\n".join(lines)
+    except Exception:
+        情報 = ""
+    try:
+        正, 正src = asyncio.run(正反合.answer(訊息_.text, context=情報))
+    except Exception as e:
+        正 = _default_thesis(正反合._topic(訊息_.text), 情報); 正src = "本地估算"
+    try:
+        反, 反src = asyncio.run(antithesis.challenge(正, topic=正反合._topic(訊息_.text), context=情報))
+    except Exception as e:
+        反 = _default_antithesis(正反合._topic(訊息_.text), 情報); 反src = "本地估算"
+    try:
+        整合, 整src = asyncio.run(synthesis.fuse(正, 反, topic=正反合._topic(訊息_.text), context=情報))
+    except Exception as e:
+        整合 = _default_synthesis(正反合._topic(訊息_.text), 情報); 整src = "本地估算"
+    return {
+        "正方": 正,
+        "反方": 反,
+        "整合結論": 整合,
+        "情報前導": 情報,
+        "來源": {"正方": 正src, "反方": 反src, "整合": 整src},
+    }
 
 
 @app.get("/digest")
@@ -158,6 +202,23 @@ def 手動簡報() -> Dict[str, Any]:
 def 搜尋記憶(查詢: str) -> Dict[str, Any]:
     結果 = 記憶體.search(查詢)
     return {"查詢": 查詢, "結果": 結果, "數量": len(結果)}
+
+class 會話訊息(BaseModel):
+    text: str
+    role: str = "user"
+
+@app.get("/sessions")
+def 列出會話(api_key: str = "anonymous") -> Dict[str, Any]:
+    return {"會話": 會話記憶.list_sessions(api_key)}
+
+@app.post("/sessions/{thread_id}/ingest")
+def 會話寫入(thread_id: str, 訊息_: 會話訊息, api_key: str = "anonymous") -> Dict[str, Any]:
+    會話記憶.append(api_key, 訊息_.role or "user", 訊息_.text, thread_id=thread_id)
+    return {"已儲存": True}
+
+@app.get("/sessions/{thread_id}/recent")
+def 會話最近(thread_id: str, api_key: str = "anonymous", limit: int = 20) -> Dict[str, Any]:
+    return {"會話": 會話記憶.recent(api_key, thread_id=thread_id, limit=limit)}
 
 
 @app.post("/peers/align")

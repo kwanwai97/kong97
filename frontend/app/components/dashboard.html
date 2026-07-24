@@ -6,30 +6,53 @@
 <style>
   body { font-family: "Microsoft JhengHei", sans-serif; max-width: 1200px; margin: 20px auto; padding: 0 20px; }
   button { margin: 4px; padding: 8px 12px; cursor: pointer; }
-  textarea, input { margin: 4px; }
+  textarea, input, select { margin: 4px; }
   .card { border: 1px solid #ddd; padding: 12px; margin: 8px 0; border-radius: 6px; }
   .meta { color: #666; font-size: 0.9em; }
   .loading { color: #999; }
+  .tag { display:inline-block; background:#eef; color:#225; padding:2px 8px; border-radius:12px; font-size:0.85em; margin-left:8px; }
+  .highlight { background:#fff8c6; padding:2px 4px; border-radius:4px; }
 </style>
 </head>
 <body>
 <h1>Digital Twin 狀態：<span id="status">檢查中...</span></h1>
 <div id="brainStatus" style="margin:6px 0; color:#555;">大腦狀態：讀取中...</div>
+<div id="topicChip" style="margin:6px 0; color:#555;">偵測主題：尚未輸入</div>
 
-<textarea id="inputText" rows="4" cols="100" placeholder="請輸入要分析的文本..."></textarea><br>
+<div style="margin:8px 0;">
+  <textarea id="inputText" rows="4" cols="100" placeholder="請輸入任何主題：如『恒生指數期貨會點樣？』、『AI是否會取代人類』、『應唔應該升學』"></textarea><br>
+  <select id="modeSelect">
+    <option value="">模式：自動偵測領域</option>
+    <option value="財經">財經/投資/交易</option>
+    <option value="科技">科技/AI/創新</option>
+    <option value="政策">政策/社會/教育</option>
+    <option value="哲學">哲學/倫理/價值</option>
+    <option value="生活">生活/決策/個人</option>
+  </select>
+  <button id="dialectic">啟動辯證</button>
+  <button id="wander">情報巡察</button>
+  <button id="briefing">今日情報</button>
+  <button id="save">存入記憶</button>
+  <button id="search">搜尋記憶</button>
+  <input id="searchBox" placeholder="關鍵字">
+  <button id="align">對齊</button>
+  <button id="approve">核准</button>
+</div>
 
-<button id="save">存入記憶</button>
-<button id="dialectic">啟動辯證</button>
-<button id="wander">夜間巡查</button>
-<button id="briefing">今日簡報</button>
-<button id="search">搜尋記憶</button>
-<input id="searchBox" placeholder="記憶搜尋關鍵字">
-<button id="align">人工智慧對齊</button>
-<button id="approve">要求外部核准</button>
+<div style="margin:8px 0; padding:10px; border:1px dashed #aaa; border-radius:6px;">
+  <b>會話記憶</b>
+  <div style="margin:6px 0;">
+    <input id="threadId" placeholder="thread id" value="default" style="width:160px;">
+    <button id="threadRefresh">列出會話</button>
+    <button id="threadOpen">開啟/建立會話</button>
+    <button id="threadRecent">最近對話</button>
+  </div>
+  <pre id="threadBox" style="background:#f6f6f6; padding:8px; min-height:30px; max-height:180px; overflow:auto;">尚未選擇會話</pre>
+</div>
 
 <hr>
 
-<h2>辯證結果</h2>
+<h2>辯證結果 <span id="domainTag" class="tag"></span></h2>
 <div id="result" style="white-space: pre-wrap; border:1px solid #ccc; padding:8px; min-height:40px;"></div>
 
 <h2>情報摘要</h2>
@@ -37,7 +60,7 @@
 
 <h2>下一步建議</h2>
 <div id="nextStep" style="border:1px solid #ccc; padding:8px; min-height:40px; background:#f9f9f9;">
-<p>請先輸入文字，然後按「啟動辯證」或「今日簡報」開始。</p>
+<p>請輸入任何主題，例如：『恒指期貨』、『AI倫理』、『退休規劃』、『創業成敗』，按「啟動辯證」即時見到跨領域分析。</p>
 </div>
 
 <h2>系統日誌</h2>
@@ -49,6 +72,9 @@ const resultBox = document.getElementById('result');
 const logsBox = document.getElementById('logs');
 const statusEl = document.getElementById('status');
 const nextStepEl = document.getElementById('nextStep');
+const topicChip = document.getElementById('topicChip');
+const domainTag = document.getElementById('domainTag');
+const modeSelect = document.getElementById('modeSelect');
 
 function setStatus(s) { statusEl.textContent = s; }
 
@@ -59,10 +85,11 @@ async function showBrainStatus() {
     const data = await api('/brain/status');
     const host = data.llm_host || '';
     const model = data.llm_model || '';
+    const provider = data.provider || 'none';
     const on = data.已啟動 ? '已啟動' : '未啟動';
-    el.textContent = `大腦狀態：${on}（${model} @ ${host}）`;
-    if (data.已啟動) el.style.color = '#1b5e20';
-    else el.style.color = '#b71c1c';
+    const detail = provider === 'openai' ? 'OpenAI' : provider === 'ollama' ? 'Ollama' : '無 LLM';
+    el.textContent = `大腦狀態：${on}（${model} @ ${host}）[${detail}]`;
+    el.style.color = data.已啟動 ? '#1b5e20' : '#b71c1c';
   } catch (e) {
     el.textContent = '大腦狀態：讀取失敗';
     el.style.color = '#b71c1c';
@@ -78,15 +105,37 @@ function showNextStep(text) {
   nextStepEl.innerHTML = '<p><b>下一步：</b>' + text + '</p>';
 }
 
+function detectDomain(text) {
+  text = (text || '').toLowerCase();
+  const map = [
+    {v:'財經', k:['股市','股票','期貨','匯率','通脹','利率','債券','基金','資產','交易','恒指','恆指','bitcoin','加密','外匯','存款','貸款']},
+    {v:'科技', k:['ai','人工智慧','模型','軟體','程式','app','區塊鏈','晶片','硬體','開源','演算法','大模型','gpt','llm']},
+    {v:'政策', k:['政策','法規','政府','選舉','公共','稅','社會福利','勞工','環保','外交']},
+    {v:'哲學', k:['意義','道德','自由','存在','意識','價值','倫理','善','正義','幸福']},
+    {v:'醫療', k:['醫療','健康','病人','藥物','疫苗','疾病','診斷','治療','醫院']},
+    {v:'教育', k:['學習','教學','課程','考試','學校','老師','學生']},
+    {v:'法律', k:['法律','契約','侵權','訴訟','條款','權利','義務','隱私']},
+    {v:'科學', k:['實驗','理論','物理','化學','生物','天文','氣候','能源','研究']},
+    {v:'生活', k:['婚姻','家庭','退休','育兒','旅遊','美食','交通','住房','心理']},
+  ];
+  for (const row of map) if (row.k.some(k => text.includes(k))) return row.v;
+  return '通用';
+}
+
+function setDomain(topic, infer) {
+  const mode = modeSelect.value;
+  const d = mode || infer || detectDomain(topic);
+  domainTag.textContent = '領域：' + d;
+  topicChip.textContent = '偵測主題：' + (topic || '尚未輸入');
+}
+
 function api(path, options) {
   setStatus('處理中...');
   return fetch(path, options).then(res => {
     if (!res.ok) throw new Error('HTTP ' + res.status);
     if (res.status === 204) return null;
     return res.json();
-  }).finally(() => {
-    setStatus('就緒');
-  });
+  }).finally(() => { setStatus('就緒'); });
 }
 
 function renderBriefing(items) {
@@ -94,7 +143,7 @@ function renderBriefing(items) {
   if (!area) return;
   if (!Array.isArray(items) || items.length === 0) {
     area.innerHTML = '<p>暫無情報</p>';
-    showNextStep('情報暫無，你可以輸入文字做辯證分析。');
+    showNextStep('情報暫無，你可以輸入任何主題做辯證分析。');
     return;
   }
   area.innerHTML = items.map(it => {
@@ -110,7 +159,7 @@ function renderBriefing(items) {
       '<p>' + summary + '</p>' +
       '</div>';
   }).join('');
-  showNextStep('情報已顯示。你可以：1) 輸入新文字做辯證 2) 存入記憶 3) 搜尋歷史記憶');
+  showNextStep('情報已顯示。你可以：1) 輸入新主題做辯證 2) 存入記憶 3) 搜尋歷史記憶');
 }
 
 document.getElementById('save').onclick = async () => {
@@ -118,7 +167,7 @@ document.getElementById('save').onclick = async () => {
   if (!text) { alert('請先輸入文字'); return; }
   await api('/ingest', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({text})});
   log('已存入記憶');
-  showNextStep('已存入記憶。下一步：按「啟動辯證」分析輸入的文字，或按「今日簡報」看情報。');
+  showNextStep('已存入記憶。下一步：按「啟動辯證」分析輸入的文字，或按「今日情報」看情報。');
 };
 
 document.getElementById('dialectic').onclick = async () => {
@@ -129,12 +178,14 @@ document.getElementById('dialectic').onclick = async () => {
     const 正 = data.正方 || '';
     const 反 = data.反方 || '';
     const 整合 = data.整合結論 || '';
+    const 情報 = data.情報前導 || '';
     if (!正 && !反 && !整合) {
       resultBox.textContent = '辯證完成，但系統暫時冇內容。請稍後再試，或Try「存入記憶」後再辯證。';
       showNextStep('辯證結果為空。建議：1) 檢查網絡連接 2) 重新輸入文字 3) 存入記憶後再試一次');
     } else {
-      resultBox.textContent = '正方：' + 正 + '\n\n反方：' + 反 + '\n\n整合結論：' + 整合;
-      showNextStep('辯證完成。下一步：你可以按「今日簡報」看情報，或修改輸入框內容再辯證一次。');
+      resultBox.textContent = '情報前導：\n' + 情報 + '\n\n' +
+        '正方：\n' + 正 + '\n\n反方：\n' + 反 + '\n\n整合結論：\n' + 整合;
+      showNextStep('辯證完成。下一步：你可以按「今日情報」看情報，或修改輸入框內容再辯證一次。');
     }
     log('辯證完成');
   } catch (e) {
@@ -150,18 +201,18 @@ document.getElementById('wander').onclick = async () => {
     const items = data.情報 || data.items || [];
     if (items.length === 0) {
       resultBox.textContent = '尚無情報';
-      showNextStep('情報暫無。你可以：1) 按「今日簡報」再看一次 2) 輸入文字做辯證');
+      showNextStep('情報暫無。你可以：1) 按「今日情報」再看一次 2) 輸入任何主題做辯證');
     } else {
-      resultBox.textContent = '夜間巡查完成，共 ' + items.length + ' 則情報：\n\n' +
+      resultBox.textContent = '情報巡察完成，共 ' + items.length + ' 則情報：\n\n' +
         items.map(it => (it.source||'') + ' - ' + (it.title||'') + '\n' + (it.summary||'')).join('\n\n');
-      showNextStep('情報已顯示。下一步：按「今日簡報」看圖形化情報摘要，或按「啟動辯證」分析你輸入的文字。');
+      showNextStep('情報已顯示。下一步：按「今日情報」看圖形化情報摘要，或輸入任何主題做辯證。');
     }
     renderBriefing(items);
-    log('巡邏完成');
+    log('巡察完成');
   } catch (e) {
-    resultBox.textContent = '巡邏失敗：' + e.message;
-    log('巡邏失敗：' + e.message);
-    showNextStep('巡邏失敗。建議：1) 檢查網絡連接 2) 重新啟動系統 3) 稍後再試');
+    resultBox.textContent = '巡察失敗：' + e.message;
+    log('巡察失敗：' + e.message);
+    showNextStep('巡察失敗。建議：1) 檢查網絡連接 2) 重新啟動系統 3) 稍後再試');
   }
 };
 
@@ -171,17 +222,17 @@ document.getElementById('briefing').onclick = async () => {
     const items = Array.isArray(data.項目) ? data.項目 : (Array.isArray(data.items) ? data.items : []);
     if (items.length === 0) {
       resultBox.textContent = '簡報暫無內容';
-      showNextStep('簡報暫無內容。你可以：1) 按「夜間巡查」抓取情報 2) 輸入文字做辯證');
+      showNextStep('情報暫無。你可以：1) 按「情報巡察」抓取情報 2) 輸入任何主題做辯證');
     } else {
-      resultBox.textContent = '簡報讀取完成，請看下方情報摘要';
-      showNextStep('情報摘要已顯示。下一步：你可以閱讀情報，或按「啟動辯證」分析你輸入的文字，或「搜尋記憶」查看歷史。');
+      resultBox.textContent = '情報摘要已更新，請看下方情報摘要';
+      showNextStep('情報摘要已顯示。下一步：你可以閱讀情報，或按「啟動辯證」分析你輸入的主題，或「搜尋記憶」查看歷史。');
     }
     renderBriefing(items);
-    log('簡報讀取完成');
+    log('情報讀取完成');
   } catch (e) {
-    resultBox.textContent = '簡報失敗：' + e.message;
-    log('簡報失敗：' + e.message);
-    showNextStep('簡報失敗。建議：1) 檢查網絡連接 2) 稍後再試 3) 按「夜間巡查」嘗試其他情報來源');
+    resultBox.textContent = '情報失敗：' + e.message;
+    log('情報失敗：' + e.message);
+    showNextStep('情報失敗。建議：1) 檢查網絡連接 2) 稍後再試 3) 按「情報巡察」嘗試其他情報來源');
   }
 };
 
@@ -229,6 +280,53 @@ document.getElementById('approve').onclick = async () => {
     resultBox.textContent = '核准失敗：' + e.message;
     log('核准失敗：' + e.message);
     showNextStep('核准失敗。建議：重新啟動系統或稍後再試。');
+  }
+};
+
+inputText.addEventListener('input', () => {
+  const infer = detectDomain(inputText.value);
+  setDomain(inputText.value, infer);
+});
+
+const threadId = document.getElementById('threadId');
+const threadBox = document.getElementById('threadBox');
+
+document.getElementById('threadRefresh').onclick = async () => {
+  try {
+    const data = await api('/sessions?api_key=anonymous');
+    const rows = data.會話 || [];
+    threadBox.textContent = rows.length
+      ? rows.map(r => `#${r.id} ${r.thread_id} updated=${r.updated_at}`).join('\n')
+      : '尚無會話';
+  } catch (e) {
+    threadBox.textContent = '讀取會話失敗：' + e.message;
+  }
+};
+
+document.getElementById('threadOpen').onclick = async () => {
+  const tid = (threadId.value || 'default').trim() || 'default';
+  try {
+    await api(`/sessions/${encodeURIComponent(tid)}/ingest`, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({text: '建立會話', role: 'system'})
+    });
+    threadBox.textContent = '已建立/開啟會話：' + tid;
+  } catch (e) {
+    threadBox.textContent = '建立會話失敗：' + e.message;
+  }
+};
+
+document.getElementById('threadRecent').onclick = async () => {
+  const tid = (threadId.value || 'default').trim() || 'default';
+  try {
+    const data = await api(`/sessions/${encodeURIComponent(tid)}/recent?api_key=anonymous&limit=20`);
+    const turns = data.會話 || [];
+    threadBox.textContent = turns.length
+      ? turns.map(t => `[${t.role}] ${t.content}`).join('\n')
+      : '尚無對話';
+  } catch (e) {
+    threadBox.textContent = '讀取對話失敗：' + e.message;
   }
 };
 
