@@ -6,188 +6,300 @@
 <title>Digital Twin · 你的身份助手</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:"Microsoft JhengHei","PingFang HK",sans-serif;max-width:980px;margin:18px auto;padding:0 16px;color:#1f1f1f;background:#f7f8fb}
-  .card{border:1px solid #d8dce6;padding:14px;border-radius:10px;background:#fff;margin:10px 0;box-shadow:0 1px 2px rgba(0,0,0,0.03)}
-  button{margin:4px;padding:10px 14px;border:0;border-radius:8px;background:#2276d6;color:#fff;cursor:pointer;font-size:1rem}
-  button.secondary{background:#6a737d;font-size:.95rem}
+  body{font-family:"Microsoft JhengHei","PingFang HK",sans-serif;max-width:720px;margin:0 auto;padding:20px 16px;color:#1f1f1f;background:#f7f8fb}
+  .card{border:1px solid #d8dce6;padding:18px;border-radius:12px;background:#fff;margin:12px 0;box-shadow:0 2px 6px rgba(0,0,0,0.04)}
+  button{margin:6px 4px;padding:12px 18px;border:0;border-radius:10px;background:#2276d6;color:#fff;cursor:pointer;font-size:1rem;font-weight:600}
+  button.secondary{background:#6a737d}
   button.danger{background:#c0392b}
-  input,textarea,select{margin:4px;padding:10px;border:1px solid #ccd2dc;border-radius:8px;min-width:120px;font-size:.95rem}
-  select{min-width:140px}
-  pre{background:#f5f7fa;padding:10px;border-radius:8px;overflow:auto;font-size:.9rem}
+  input,select{margin:6px 4px;padding:12px;border:1px solid #ccd2dc;border-radius:10px;min-width:140px;font-size:1rem}
+  select{min-width:160px}
   .ok{color:#1b5e20}.err{color:#b71c1c}.meta{color:#6a737d;font-size:.9em}
-  .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-  @media(max-width:780px){.grid{grid-template-columns:1fr}}
   .hidden{display:none}
-  .tag{display:inline-block;background:#eef3ff;color:#224;padding:3px 10px;border-radius:999px;font-size:.82em;margin-left:8px}
-  .pill{border-radius:999px;padding:6px 14px;background:#e9f0ff;color:#1a237e;font-weight:600;font-size:.85rem}
-  .list-item{border-bottom:1px dashed #e6e8ee;padding:8px 0}
-  .list-item b{color:#1f2d3d}
-  .hint{background:#eef7ff;border-left:4px solid #2276d6;padding:10px 12px;border-radius:0 8px 8px 0;margin:6px 0;font-size:.92rem;color:#1a3a5c}
-  .hint b{color:#2276d6}
-  .step{display:inline-block;background:#2276d6;color:#fff;width:22px;height:22px;border-radius:50%;text-align:center;line-height:22px;font-size:.85rem;margin-right:6px}
+  .step-dots{text-align:center;margin:16px 0}
+  .step-dots span{display:inline-block;width:10px;height:10px;border-radius:50%;background:#d0d5dd;margin:0 6px}
+  .step-dots span.active{background:#2276d6}
+  .step-dots span.done{background:#1b5e20}
+  .wizard-panel{display:none}
+  .wizard-panel.active{display:block}
+  .example{background:#f0f4ff;border-left:4px solid #2276d6;padding:10px 12px;border-radius:0 8px 8px 0;margin:10px 0;font-size:.92rem;color:#1a3a5c}
+  .example b{color:#2276d6}
+  .success-box{background:#e8f5e9;border:2px solid #1b5e20;padding:16px;border-radius:12px;text-align:center;margin:20px 0}
+  .success-box h2{color:#1b5e20;margin-bottom:8px}
+  .nav-row{display:flex;justify-content:space-between;margin-top:12px}
+  .nav-row button{min-width:120px}
 </style>
 </head>
 <body>
-<h1>Digital Twin · 你的身份助手</h1>
 
-<!-- Onboarding Banner -->
-<div id="onboarding" class="card" style="background:#eef7ff;border-color:#2276d6">
-  <b>👋 歡迎！這是你的 2 分鐘快速開始</b>
-  <div style="margin-top:10px;font-size:.95rem">
-    <div><span class="step">1</span><b>填寫個人檔案</b> — 在下方「關於我」選擇你的風險偏好與時間視野，按「保存」。</div>
-    <div style="margin-top:6px"><span class="step">2</span><b>加入個人事實</b> — 在「個人資料庫」加入 3 筆資料，例如：城市=香港、興趣=打字員、目標=減肥。</div>
-    <div style="margin-top:6px"><span class="step">3</span><b>記錄第一個決策</b> — 在「今日決定」輸入你今日做過的任何決定，例如：今晚食乜、工作计划等。</div>
-    <div style="margin-top:6px"><span class="step">4</span><b>寫日誌</b> — 在「今日反思」寫 1-2 句今天發生了什麼事。</div>
-    <div style="margin-top:6px"><span class="step">5</span><b>按「分析盲點」</b> — 系統會根據你嘅資料，分析你有冇 blind spot。</div>
-  </div>
-  <button class="secondary" style="margin-top:12px" onclick="document.getElementById('onboarding').style.display='none'">我明白了，開始使用</button>
-</div>
-
-<div id="authSection">
-  <div class="card">
-    <h2>登入 / 註冊</h2>
-    <div class="hint">第一次使用請先註冊，之後用同一帳號登入即可查看你的所有記錄。</div>
-    <input id="user" placeholder="帳號（隨便打，例如 kwan）">
-    <input id="pass" type="password" placeholder="密碼（隨便打）">
-    <input id="display" placeholder="你的名稱（選填）">
-    <div style="margin-top:8px">
+<!-- STEP 0: 登入/註冊 -->
+<div id="step-auth" class="wizard-panel active">
+  <div class="card" style="text-align:center;padding:28px">
+    <h1 style="font-size:1.8rem;margin-bottom:6px">👋 歡迎來到 Digital Twin</h1>
+    <p class="meta" style="font-size:1.05rem;margin:8px 0 16px">這是你的專屬身份助手。系統會記住你的決定、偵測你的盲點、主動提醒你。<br>請先建立你的帳號。</p>
+    <div class="example">
+      <b>怎麼辦：</b>第一次用請按「註冊」，之後用同一帳號登入。<br>
+      <b>帳號：</b>隨便打，例如 <code>kwan</code><br>
+      <b>密碼：</b>隨便打，例如 <code>test123</code>
+    </div>
+    <input id="user" placeholder="帳號" style="width:100%;max-width:320px;margin-top:12px">
+    <input id="pass" type="password" placeholder="密碼" style="width:100%;max-width:320px">
+    <input id="display" placeholder="你的名稱（選填）" style="width:100%;max-width:320px">
+    <div style="margin-top:14px">
       <button id="loginBtn">登入</button>
       <button id="registerBtn" class="secondary">註冊新帳號</button>
     </div>
-    <div id="authMsg" class="meta" style="margin-top:8px"></div>
+    <div id="authMsg" class="meta" style="margin-top:10px"></div>
   </div>
 </div>
 
+<!-- STEP 1: 關於我 -->
+<div id="step-profile" class="wizard-panel">
+  <div class="card">
+    <div class="step-dots"><span class="done"></span><span class="done"></span><span class="active"></span><span></span><span></span></div>
+    <h2 style="margin-bottom:4px">🙋 關於你</h2>
+    <p class="meta">系統會根據呢啲資料，給你個人化建議。</p>
+    <div class="example">
+      <b>點填：</b>選一個最接近你嘅選項就得。<br>
+      <b>風險偏好：</b>你遇到新機會時，通常點樣？<br>
+      <b>時間視野：</b>你做決定時，主要考慮多長時間範圍？
+    </div>
+    <div style="margin-top:14px">
+      <select id="risk" style="width:100%;max-width:320px">
+        <option value="">風險偏好</option>
+        <option value="low">🟢 保守 — 唔敢冒險</option>
+        <option value="medium" selected>🟡 中等 — 適度冒險</option>
+        <option value="high">🔴 進取 — 愿意冒險</option>
+      </select>
+      <select id="horizon" style="width:100%;max-width:320px">
+        <option value="">時間視野</option>
+        <option value="short">短期（今日/呢週）</option>
+        <option value="medium" selected>中期（幾個月）</option>
+        <option value="long">長期（一年以上）</option>
+      </select>
+    </div>
+    <div class="nav-row">
+      <button class="secondary" onclick="goStep(-1)" disabled>上一步</button>
+      <button onclick="goStep(1)">下一步</button>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 2: 個人資料 -->
+<div id="step-facts" class="wizard-panel">
+  <div class="card">
+    <div class="step-dots"><span class="done"></span><span class="done"></span><span class="done"></span><span class="active"></span><span></span></div>
+    <h2 style="margin-bottom:4px">📚 加入 3 筆個人資料</h2>
+    <p class="meta">系統會記住呢啲資料，唔使你每次重複解釋。</p>
+    <div class="example">
+      <b>點填：</b>每筆有 3 個欄位。<br>
+      key = 名稱，value = 內容，category = 分類<br>
+      <b>推薦 3 筆：</b><br>
+      1. key:<code>城市</code> value:<code>香港</code> category:<code>個人</code><br>
+      2. key:<code>興趣</code> value:<code>打字員</code> category:<code>個人</code><br>
+      3. key:<code>目標</code> value:<code>減肥</code> category:<code>目標</code>
+    </div>
+    <div style="margin-top:12px">
+      <input id="factKey" placeholder="名稱，例如：城市">
+      <input id="factValue" placeholder="內容，例如：香港">
+      <select id="factCat">
+        <option value="bio">個人</option>
+        <option value="pref">偏好</option>
+        <option value="constraint">限制</option>
+        <option value="goal">目標</option>
+      </select>
+      <button id="addFactBtn" class="secondary">＋ 加入</button>
+    </div>
+    <div id="factStatus" class="meta" style="margin-top:8px"></div>
+    <div class="nav-row">
+      <button class="secondary" onclick="goStep(-1)">上一步</button>
+      <button onclick="goStep(1)">下一步</button>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 3: 第一個決策 -->
+<div id="step-decision" class="wizard-panel">
+  <div class="card">
+    <div class="step-dots"><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span><span class="active"></span></div>
+    <h2 style="margin-bottom:4px">🎯 記錄你今日第一個決定</h2>
+    <p class="meta">做咗任何決定就打上來。系統會開始學習你嘅模式。</p>
+    <div class="example">
+      <b>點填：</b>只要填 3 個欄位。<br>
+      <b>主題：</b>決定邊方面，例如：今晚食乜、工作计划<br>
+      <b>選擇：</b>你揀咗咩，例如：壽司、 escrito 報告、唔去Party<br>
+      <b>理由：</b>點解揀呢個（可空）
+    </div>
+    <div style="margin-top:12px">
+      <input id="dTopic" placeholder="決定邊方面，例如：今晚食乜" style="width:100%;max-width:520px">
+      <input id="dChoice" placeholder="你揀咗咩，例如：壽司" style="width:100%;max-width:520px">
+      <input id="dReason" placeholder="點解揀呢個（可空）" style="width:100%;max-width:520px">
+      <button id="addDecisionBtn" class="secondary" style="margin-top:8px">＋ 記錄第一個決定</button>
+    </div>
+    <div id="decisionStatus" class="meta" style="margin-top:8px"></div>
+    <div class="nav-row">
+      <button class="secondary" onclick="goStep(-1)">上一步</button>
+      <button onclick="goStep(1)">下一步</button>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 4: 完成 -->
+<div id="step-done" class="wizard-panel">
+  <div class="success-box">
+    <h2>✅ 完成！你的身份雛形已建立</h2>
+    <p style="margin:8px 0">你已經有：</p>
+    <p>✓ 個人檔案 ✓ 個人資料 ✓ 第一個決策</p>
+    <p class="meta" style="margin:12px 0 0">之後每次登入，系統都會根據你嘅記錄給你建議。<br>重要提示：每次做決定或反思時，記得回來記錄。</p>
+    <button onclick="enterApp()" style="margin-top:14px;font-size:1.1rem;padding:14px 28px">進入我的儀表板</button>
+  </div>
+</div>
+
+<!-- 主介面 -->
 <div id="app" class="hidden">
   <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
     <div>
-      <b id="greet">您好</b> <span id="userName" class="pill"></span>
+      <b id="greet">您好</b> <span id="userName" class="meta"></span>
       <div class="meta" id="tokenMeta"></div>
     </div>
     <div>
       <button id="logoutBtn" class="danger">登出</button>
     </div>
   </div>
-
   <div class="grid">
-    <!-- About Me -->
     <div class="card">
       <b>🙋 關於我</b>
-      <div class="hint">先設定你的基本性格，系統會根據呢啲資料給你個人化建議。</div>
       <div style="margin-top:8px">
-        <select id="risk">
-          <option value="">風險偏好</option>
-          <option value="low">🟢 保守 — 唔敢冒險</option>
-          <option value="medium" selected>🟡 中等 — 適度冒險</option>
-          <option value="high">🔴 進取 — 愿意冒險</option>
-        </select>
-        <select id="horizon">
-          <option value="">時間視野</option>
-          <option value="short">短期（今日/呢週）</option>
-          <option value="medium" selected>中期（幾個月）</option>
-          <option value="long">長期（一年以上）</option>
-        </select>
+        <select id="risk"><option value="">風險偏好</option><option value="low">保守</option><option value="medium">中等</option><option value="high">進取</option></select>
+        <select id="horizon"><option value="">時間視野</option><option value="short">短期</option><option value="medium">中期</option><option value="long">長期</option></select>
         <button id="saveProfileBtn" class="secondary">保存</button>
       </div>
       <pre id="profile" style="max-height:180px">尚無檔案</pre>
     </div>
-
-    <!-- Personal Facts -->
     <div class="card">
       <b>📚 個人資料庫</b>
-      <div class="hint">加入一些關於你的事實。系統會記住呢啲資料，唔使你每次重複解釋。</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
-        <input id="factKey" placeholder="資料名稱，例如：城市">
-        <input id="factValue" placeholder="內容，例如：香港">
-        <select id="factCat">
-          <option value="bio">個人</option>
-          <option value="pref">偏好</option>
-          <option value="constraint">限制</option>
-          <option value="goal">目標</option>
-        </select>
+        <input id="factKey" placeholder="名稱">
+        <input id="factValue" placeholder="內容">
+        <select id="factCat"><option value="bio">個人</option><option value="pref">偏好</option><option value="constraint">限制</option><option value="goal">目標</option></select>
         <button id="addFactBtn" class="secondary">＋ 加入</button>
       </div>
       <pre id="facts" style="max-height:180px">尚無資料</pre>
     </div>
-
-    <!-- Decisions -->
     <div class="card">
       <b>🎯 今日決定</b>
-      <div class="hint">做咗任何決定就打上來，無論大小。例如：今晚食乜、點樣應對同事、買唔買呢樣嘢。系統會追蹤你嘅決策模式。</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-        <input id="dTopic" placeholder="決定邊方面，例如：今晚食乜">
-        <input id="dChoice" placeholder="你揀咗咩，例如：壽司">
-        <input id="dReason" placeholder="點解揀呢個（可空）">
-        <input id="dTags" placeholder="標籤（可空）" style="min-width:120px">
+        <input id="dTopic" placeholder="主題">
+        <input id="dChoice" placeholder="選擇">
+        <input id="dReason" placeholder="理由">
+        <input id="dTags" placeholder="標籤" style="min-width:100px">
         <button id="addDecisionBtn" class="secondary">＋ 記錄</button>
       </div>
       <div id="decisions" style="max-height:240px;overflow:auto;margin-top:8px">尚無決定</div>
     </div>
-
-    <!-- Diary -->
     <div class="card">
       <b>📝 今日反思</b>
-      <div class="hint">每天寫幾句發生了什麼事。唔需要很長，系統會自動分析你嘅情緒同模式。</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-        <input id="logEntries" placeholder="今日發生咗咩，例如：今天繼續做 digital twin，加了新功能。然後去咗飲茶。" style="min-width:260px">
+        <input id="logEntries" placeholder="今日發生咗咩..." style="min-width:260px">
         <button id="addLogBtn" class="secondary">＋ 新增</button>
         <button id="refreshLogBtn" class="secondary">重整</button>
       </div>
       <pre id="logs" style="max-height:180px">尚無反思</pre>
     </div>
-
-    <!-- Blindspots -->
     <div class="card">
       <b>🔍 盲點探測</b>
-      <div class="hint">系統會從你嘅決策同日誌中，搵出你可能冇察覺嘅模式。例如：拖延、重複犯錯、偏見。</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button id="analyzeBtn">🔍 開始分析</button>
+        <button id="analyzeBtn">🔍 分析</button>
         <button id="refreshBlindBtn" class="secondary">重整</button>
       </div>
       <div id="blindspots" style="max-height:240px;overflow:auto">尚無訊號</div>
     </div>
-
-    <!-- Decision Outcomes -->
     <div class="card">
       <b>📊 決定結果</b>
-      <div class="hint">當你嘅決定有結果時，回來填寫。系統會學習你嘅決策質素。</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <input id="outcomeDid" placeholder="decision_id（由系統產生）">
-        <input id="outcomeValue" placeholder="結果，例如：成功/失敗/還好">
-        <button id="outcomeBtn" class="secondary">＋ 記錄成果</button>
+        <input id="outcomeDid" placeholder="decision_id">
+        <input id="outcomeValue" placeholder="結果">
+        <button id="outcomeBtn" class="secondary">＋ 記錄</button>
         <button id="refreshDecisionBtn" class="secondary">重整</button>
       </div>
       <div id="decisionsOutcome" style="max-height:240px;overflow:auto">尚無成果</div>
     </div>
   </div>
 </div>
+
 <script>
 const TOKEN_KEY='digital-twin-token';
 let token=localStorage.getItem(TOKEN_KEY)||'';
+let currentStep=0;
+const steps=['step-auth','step-profile','step-facts','step-decision','step-done'];
+
 function base(){ return location.origin; }
 function authHeaders(){ const h={'Content-Type':'application/json'}; if(token) h['X-User-Token']=token; return h; }
 async function api(path, opts={}){ const url=base()+path; const res=await fetch(url,{...opts, headers:{ ...authHeaders(), ...(opts.headers||{}) }}); if(!res.ok){ const text=await res.text().catch(()=>''); let msg=text; try{ const j=JSON.parse(text); msg=j.detail||j.error||text; }catch(e){} throw new Error('HTTP '+res.status+' '+msg); } if(res.status===204) return null; return res.json(); }
 function setText(id,txt,c){ const el=document.getElementById(id); if(!el)return; el.textContent=txt; if(c) el.className=c; }
 function setHtml(id,html){ const el=document.getElementById(id); if(!el)return; el.innerHTML=html; }
-function showApp(user){ document.getElementById('authSection').classList.add('hidden'); document.getElementById('app').classList.remove('hidden'); document.getElementById('greet').textContent = '👋 您好，'+ (user.display_name||user.username); document.getElementById('userName').textContent = '@'+user.username; document.getElementById('tokenMeta').textContent = 'Token：已載入（本地）'; setText('profile','讀取中...','meta'); setText('facts','讀取中...','meta'); setText('logs','讀取中...','meta'); setHtml('decisions','讀取中...'); setHtml('decisionsOutcome','讀取中...'); setHtml('blindspots','尚無訊號，等你記錄後按「開始分析」'); api('/identity/profile').then(d=>{ setText('profile', JSON.stringify(d, null, 2)); if(d.risk_tolerance) document.getElementById('risk').value = d.risk_tolerance; if(d.time_horizon) document.getElementById('horizon').value = d.time_horizon; }).catch(e=>setText('profile','讀取失敗：'+e.message,'err')); api('/identity/facts').then(d=>renderFacts(d)).catch(e=>setText('facts','讀取失敗：'+e.message,'err')); api('/identity/decisions').then(d=>renderDecisions(d)).catch(e=>setHtml('decisions','尚無決定，記錄第一個吧！')); api('/identity/daily-log?days=14').then(d=>renderLogs(d)).catch(e=>setText('logs','尚無反思')); api('/identity/blindspots').then(d=>renderBlindspots(d)).catch(e=>setHtml('blindspots','尚無訊號，等你記錄後按「開始分析」')); refreshDecisionsWithOutcome(); }
+function showPanel(n){ steps.forEach((id,i)=>{ const el=document.getElementById(id); if(!el)return; el.classList.toggle('active', i===n); }); currentStep=n; }
+function goStep(delta){ showPanel(currentStep+delta); }
+
+function showApp(user){
+  document.querySelectorAll('.wizard-panel').forEach(el=>el.classList.add('hidden'));
+  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('greet').textContent = '👋 您好，'+(user.display_name||user.username);
+  document.getElementById('userName').textContent = '@'+user.username;
+  setText('profile','尚無檔案','meta'); setText('facts','尚無資料','meta'); setText('logs','尚無反思','meta');
+  setHtml('decisions','尚無決定'); setHtml('blindspots','尚無訊號'); setHtml('decisionsOutcome','尚無成果');
+  api('/identity/profile').then(d=>{ setText('profile', JSON.stringify(d, null, 2)); if(d.risk_tolerance) document.getElementById('risk').value = d.risk_tolerance; if(d.time_horizon) document.getElementById('horizon').value = d.time_horizon; }).catch(()=>{});
+  api('/identity/facts').then(d=>renderFacts(d)).catch(()=>{});
+  api('/identity/decisions').then(d=>renderDecisions(d)).catch(()=>{});
+  api('/identity/daily-log?days=14').then(d=>renderLogs(d)).catch(()=>{});
+  api('/identity/blindspots').then(d=>renderBlindspots(d)).catch(()=>{});
+  refreshDecisionsWithOutcome();
+}
+
+function enterApp(){ showApp({username:'',display_name:''}); }
+
 function renderFacts(d){ const rows=Array.isArray(d.事實)?d.事實:[]; if(!rows.length){ setText('facts','尚無資料，按上方「＋ 加入」開始','meta'); return; } setHtml('facts', rows.map(r=>'['+r.category+'] '+r.key+': '+r.value).join('\\n')); }
-function renderDecisions(d){ const rows=Array.isArray(d.決策)?d.決策:[]; if(!rows.length){ setHtml('decisions','尚無決定，記錄第一個吧！'); return; } setHtml('decisions', rows.map(r=>'<div class=\"list-item\"><b>'+(r.topic||'')+'</b> → '+(r.choice||'')+'<br><small class=\"meta\">'+(r.reasoning||'')+'<br>'+(r.outcome?('✅ 成果：'+r.outcome):'⏳ 尚未記錄成果')+' '+(r.tags?(' · '+r.tags.join(',')):'')+'<br>'+(r.created_at||'')+'</small></div>').join('')); }
+function renderDecisions(d){ const rows=Array.isArray(d.決策)?d.決策:[]; if(!rows.length){ setHtml('decisions','尚無決定，記錄第一個吧！'); return; } setHtml('decisions', rows.map(r=>'<div class="list-item"><b>'+(r.topic||'')+'</b> → '+(r.choice||'')+'<br><small class="meta">'+(r.reasoning||'')+'<br>'+(r.outcome?('成果：'+r.outcome):'尚未記錄成果')+' '+(r.tags?('。'+r.tags.join(',')):'')+'<br>'+(r.created_at||'')+'</small></div>').join('')); }
 function renderLogs(d){ const rows=Array.isArray(d.日誌)?d.日誌:[]; if(!rows.length){ setText('logs','尚無反思，寫幾句今天發生什麼事吧','meta'); return; } setHtml('logs', rows.map(r=>'['+r.date+'] '+JSON.stringify(r.entries||[])).join('\\n')); }
-function renderBlindspots(d){ const rows=Array.isArray(d.盲點訊號)?d.盲點訊號:[]; if(!rows.length){ setHtml('blindspots','尚無訊號，等你記錄後按「開始分析」'); return; } setHtml('blindspots', rows.map(r=>'<div class=\"list-item\"><b>'+(r.pattern||r.id)+'</b> · '+(r.severity||'')+' · '+(r.status||'')+'<br><small class=\"meta\">'+(r.evidence||[]).join(' | ')+'</small></div>').join('')); }
-function refreshDecisionsWithOutcome(){ api('/identity/decisions').then(d=>{ const rows=Array.isArray(d.決策)?d.決策:[]; const withOutcome=rows.filter(r=>r.outcome); setHtml('decisionsOutcome', withOutcome.length ? rows.map(r=>'<div class=\"list-item\"><b>'+r.id+'</b> '+(r.topic||'')+' → '+(r.choice||'')+'<br><small class=\"meta\">'+(r.outcome?'✅ '+r.outcome:'⏳ 尚未記錄成果')+' '+(r.outcome_recorded_at||'')+'</small></div>').join('') : '尚無成果，當決定有結果時回來記錄吧！'); }).catch(()=>setHtml('decisionsOutcome','重整失敗')); }
-document.getElementById('loginBtn').onclick=async()=>{ const u=document.getElementById('user').value.trim(); const p=document.getElementById('pass').value; if(!u||!p){alert('請輸入帳號與密碼');return;} try{ const j=await api('/auth/login',{method:'POST',body:JSON.stringify({username:u,password:p})}); token=j.token; localStorage.setItem(TOKEN_KEY,token); setText('authMsg','登入成功：'+j.username,'ok'); showApp(j); }catch(e){ setText('authMsg','登入失敗：'+e.message,'err'); } };
-document.getElementById('registerBtn').onclick=async()=>{ const u=document.getElementById('user').value.trim(); const p=document.getElementById('pass').value; const d=document.getElementById('display').value.trim(); if(!u||!p){alert('請輸入帳號與密碼');return;} try{ const j=await api('/auth/register',{method:'POST',body:JSON.stringify({username:u,password:p,display_name:d})}); setText('authMsg','✅ 註冊成功，請按登入','ok'); }catch(e){ setText('authMsg','註冊失敗：'+e.message,'err'); } };
+function renderBlindspots(d){ const rows=Array.isArray(d.盲點訊號)?d.盲點訊號:[]; if(!rows.length){ setHtml('blindspots','尚無訊號，等你記錄後按「開始分析」'); return; } setHtml('blindspots', rows.map(r=>'<div class="list-item"><b>'+(r.pattern||r.id)+'</b> · '+(r.severity||'')+'<br><small class="meta">'+(r.evidence||[]).join(' | ')+'</small></div>').join('')); }
+function refreshDecisionsWithOutcome(){ api('/identity/decisions').then(d=>{ const rows=Array.isArray(d.決策)?d.決策:[]; const withOutcome=rows.filter(r=>r.outcome); setHtml('decisionsOutcome', withOutcome.length ? rows.map(r=>'<div class="list-item"><b>'+r.id+'</b> '+(r.topic||'')+' → '+(r.choice||'')+'<br><small class="meta">成果：'+(r.outcome||'無')+' '+(r.outcome_recorded_at||'')+'</small></div>').join('') : '尚無成果，當決定有結果時回來記錄吧！'); }).catch(()=>{}); }
+
+// Auth
+document.getElementById('loginBtn').onclick=async()=>{
+  const u=document.getElementById('user').value.trim(); const p=document.getElementById('pass').value;
+  if(!u||!p){setText('authMsg','請輸入帳號與密碼','err');return;}
+  try{ const j=await api('/auth/login',{method:'POST',body:JSON.stringify({username:u,password:p})}); token=j.token; localStorage.setItem(TOKEN_KEY,token); setText('authMsg','登入成功，正在建立你的引導...','ok'); showStep1(); }catch(e){ setText('authMsg','登入失敗：'+e.message,'err'); }
+};
+document.getElementById('registerBtn').onclick=async()=>{
+  const u=document.getElementById('user').value.trim(); const p=document.getElementById('pass').value; const d=document.getElementById('display').value.trim();
+  if(!u||!p){setText('authMsg','請輸入帳號與密碼','err');return;}
+  try{ const j=await api('/auth/register',{method:'POST',body:JSON.stringify({username:u,password:p,display_name:d})}); setText('authMsg','✅ 註冊成功！請按登入','ok'); }catch(e){ setText('authMsg','註冊失敗：'+e.message,'err'); }
+};
 document.getElementById('logoutBtn').onclick=()=>{ token=''; localStorage.removeItem(TOKEN_KEY); location.reload(); };
-document.getElementById('saveProfileBtn').onclick=async()=>{ const risk=document.getElementById('risk').value; const horizon=document.getElementById('horizon').value; const body={risk_tolerance:risk,time_horizon:horizon}; try{ const j=await api('/identity/profile',{method:'PATCH',body:JSON.stringify(body)}); setText('profile',JSON.stringify(j,null,2),'ok'); }catch(e){ setText('profile','儲存失敗：'+e.message,'err'); } };
-document.getElementById('addFactBtn').onclick=async()=>{ const key=document.getElementById('factKey').value.trim(); const value=document.getElementById('factValue').value.trim(); const category=document.getElementById('factCat').value; if(!key||!value){alert('請輸入資料名稱與內容');return;} try{ const j=await api('/identity/facts',{method:'POST',body:JSON.stringify({category,key,value})}); document.getElementById('factKey').value=''; document.getElementById('factValue').value=''; api('/identity/facts').then(d=>renderFacts(d)); }catch(e){alert(e.message);} };
-document.getElementById('addDecisionBtn').onclick=async()=>{ const topic=document.getElementById('dTopic').value.trim(); const choice=document.getElementById('dChoice').value.trim(); const reason=document.getElementById('dReason').value.trim(); const tags=document.getElementById('dTags').value.split(',').map(s=>s.trim()).filter(Boolean); if(!topic||!choice){alert('請輸入決定同你揀咗咩');return;} try{ await api('/identity/decisions',{method:'POST',body:JSON.stringify({topic,choice,reasoning:reason,tags})}); document.getElementById('dReason').value=''; document.getElementById('dTags').value=''; api('/identity/decisions').then(d=>renderDecisions(d)); }catch(e){alert(e.message);} };
-document.getElementById('addLogBtn').onclick=async()=>{ const text=document.getElementById('logEntries').value.trim(); if(!text){alert('請輸入反思內容');return;} try{ await api('/identity/daily-log',{method:'POST',body:JSON.stringify({entries:[text]})}); document.getElementById('logEntries').value=''; api('/identity/daily-log?days=14').then(d=>renderLogs(d)); }catch(e){alert(e.message);} };
-document.getElementById('refreshLogBtn').onclick=()=>api('/identity/daily-log?days=14').then(d=>renderLogs(d)).catch(()=>{});
-document.getElementById('refreshDecisionBtn').onclick=()=>refreshDecisionsWithOutcome();
-document.getElementById('analyzeBtn').onclick=async()=>{ try{ const j=await api('/identity/blindspots/analyze',{method:'POST',headers:{Accept:'application/json'}}); setText('authMsg','✅ 已更新盲點訊號 '+(j.已產生?.length ?? 0)+' 個','ok'); api('/identity/blindspots').then(d=>renderBlindspots(d)); }catch(e){ alert('分析失敗：'+e.message); } };
-document.getElementById('refreshBlindBtn').onclick=()=>api('/identity/blindspots').then(d=>renderBlindspots(d)).catch(()=>{});
-document.getElementById('outcomeBtn').onclick=async()=>{ const did=document.getElementById('outcomeDid').value.trim(); const value=document.getElementById('outcomeValue').value.trim(); if(!did||!value){alert('請輸入 decision_id 與成果');return;} try{ await api('/identity/decisions/outcome',{method:'POST',body:JSON.stringify({decision_id:did,outcome:value})}); document.getElementById('outcomeDid').value=''; document.getElementById('outcomeValue').value=''; refreshDecisionsWithOutcome(); }catch(e){alert(e.message);} };
-(function autologin(){ if(!token) return; try{ const j=JSON.parse(localStorage.getItem(TOKEN_KEY+'_user')||'null'); if(j){ showApp(j); return; } }catch(e){} document.getElementById('authMsg').textContent='Token 載入，請按登入驗證'; })();
+
+// Wizard
+function showStep1(){
+  document.querySelectorAll('.wizard-panel').forEach(el=>el.classList.add('hidden'));
+  document.getElementById('step-profile').classList.add('active');
+  currentStep=1;
+}
+
+document.getElementById('saveProfileBtn').onclick=async()=>{
+  const risk=document.getElementById('risk').value; const horizon=document.getElementById('horizon').value;
+  try{ await api('/identity/profile',{method:'PATCH',body:JSON.stringify({risk_tolerance:risk,time_horizon:horizon})}); alert('✅ 已保存'); }catch(e){ alert('儲存失敗：'+e.message); }
+};
+document.getElementById('addFactBtn').onclick=async()=>{
+  const key=document.getElementById('factKey').value.trim(); const value=document.getElementById('factValue').value.trim(); const category=document.getElementById('factCat').value;
+  if(!key||!value){alert('請輸入名稱與內容');return;}
+  try{ await api('/identity/facts',{method:'POST',body:JSON.stringify({category,key,value})}); document.getElementById('factKey').value=''; document.getElementById('factValue').value=''; setText('factStatus','✅ 已加入','ok'); }catch(e){ alert('加入失敗：'+e.message); }
+};
+document.getElementById('addDecisionBtn').onclick=async()=>{
+  const topic=document.getElementById('dTopic').value.trim(); const choice=document.getElementById('dChoice').value.trim(); const reason=document.getElementById('dReason').value.trim();
+  if(!topic||!choice){alert('請輸入決定同你揀咗咩');return;}
+  try{ await api('/identity/decisions',{method:'POST',body:JSON.stringify({topic,choice,reasoning:reason,tags:[]})}); document.getElementById('dTopic').value=''; document.getElementById('dChoice').value=''; document.getElementById('dReason').value=''; setText('decisionStatus','✅ 已記錄第一個決定！','ok'); }catch(e){ alert('記錄失敗：'+e.message); }
+};
+
+// Init
+if(token){ showApp({username:'',display_name:''}); }
 </script>
 </body>
 </html>
