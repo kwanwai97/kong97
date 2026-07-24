@@ -11,6 +11,9 @@
   button{margin:6px 4px;padding:12px 18px;border:0;border-radius:10px;background:#2276d6;color:#fff;cursor:pointer;font-size:1rem;font-weight:600}
   button.secondary{background:#6a737d}
   button.danger{background:#c0392b}
+  button.chip{background:#eef3ff;color:#1a237e;font-weight:500;font-size:.92rem;padding:10px 16px;border-radius:999px}
+  button.chip:hover{background:#dde4ff}
+  button.chip.picked{background:#1a237e;color:#fff}
   input,select{margin:6px 4px;padding:12px;border:1px solid #ccd2dc;border-radius:10px;min-width:140px;font-size:1rem}
   select{min-width:160px}
   .ok{color:#1b5e20}.err{color:#b71c1c}.meta{color:#6a737d;font-size:.9em}
@@ -19,14 +22,13 @@
   .step-dots span{display:inline-block;width:10px;height:10px;border-radius:50%;background:#d0d5dd;margin:0 6px}
   .step-dots span.active{background:#2276d6}
   .step-dots span.done{background:#1b5e20}
-  .wizard-panel{display:none}
-  .wizard-panel.active{display:block}
   .example{background:#f0f4ff;border-left:4px solid #2276d6;padding:10px 12px;border-radius:0 8px 8px 0;margin:10px 0;font-size:.92rem;color:#1a3a5c}
   .example b{color:#2276d6}
   .success-box{background:#e8f5e9;border:2px solid #1b5e20;padding:16px;border-radius:12px;text-align:center;margin:20px 0}
   .success-box h2{color:#1b5e20;margin-bottom:8px}
   .nav-row{display:flex;justify-content:space-between;margin-top:12px}
   .nav-row button{min-width:120px}
+  .choice-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 </style>
 </head>
 <body>
@@ -35,11 +37,10 @@
 <div id="step-auth" class="wizard-panel active">
   <div class="card" style="text-align:center;padding:28px">
     <h1 style="font-size:1.8rem;margin-bottom:6px">👋 歡迎來到 Digital Twin</h1>
-    <p class="meta" style="font-size:1.05rem;margin:8px 0 16px">這是你的專屬身份助手。系統會記住你的決定、偵測你的盲點、主動提醒你。<br>請先建立你的帳號。</p>
+    <p class="meta" style="font-size:1.05rem;margin:8px 0 16px">你的專屬身份助手。系統會記住你的決定、偵測你的盲點、主動提醒你。</p>
     <div class="example">
-      <b>怎麼辦：</b>第一次用請按「註冊」，之後用同一帳號登入。<br>
-      <b>帳號：</b>隨便打，例如 <code>kwan</code><br>
-      <b>密碼：</b>隨便打，例如 <code>test123</code>
+      <b>第一步：</b>建立帳號。<br>
+      帳號/密碼隨便打，例如 <code>kwan</code> / <code>test123</code>
     </div>
     <input id="user" placeholder="帳號" style="width:100%;max-width:320px;margin-top:12px">
     <input id="pass" type="password" placeholder="密碼" style="width:100%;max-width:320px">
@@ -52,30 +53,26 @@
   </div>
 </div>
 
-<!-- STEP 1: 關於我 -->
+<!-- STEP 1: 關於你 — 全選擇題 -->
 <div id="step-profile" class="wizard-panel">
   <div class="card">
     <div class="step-dots"><span class="done"></span><span class="done"></span><span class="active"></span><span></span><span></span></div>
-    <h2 style="margin-bottom:4px">🙋 關於你</h2>
-    <p class="meta">系統會根據呢啲資料，給你個人化建議。</p>
-    <div class="example">
-      <b>點填：</b>選一個最接近你嘅選項就得。<br>
-      <b>風險偏好：</b>你遇到新機會時，通常點樣？<br>
-      <b>時間視野：</b>你做決定時，主要考慮多長時間範圍？
-    </div>
+    <h2>🙋 關於你</h2>
+    <p class="meta">選擇最接近你的選項。</p>
+    <div class="example"><b>風險偏好：</b>遇到新機會時，你通常會…<br><b>時間視野：</b>做決定時，你主要考慮…</div>
     <div style="margin-top:14px">
-      <select id="risk" style="width:100%;max-width:320px">
-        <option value="">風險偏好</option>
-        <option value="low">🟢 保守 — 唔敢冒險</option>
-        <option value="medium" selected>🟡 中等 — 適度冒險</option>
-        <option value="high">🔴 進取 — 愿意冒險</option>
-      </select>
-      <select id="horizon" style="width:100%;max-width:320px">
-        <option value="">時間視野</option>
-        <option value="short">短期（今日/呢週）</option>
-        <option value="medium" selected>中期（幾個月）</option>
-        <option value="long">長期（一年以上）</option>
-      </select>
+      <div class="meta" style="margin-bottom:6px">風險偏好</div>
+      <div class="choice-grid" data-group="risk">
+        <button class="chip" data-value="low">🟢 保守 — 唔敢冒險</button>
+        <button class="chip picked" data-value="medium">🟡 中等 — 適度冒險</button>
+        <button class="chip" data-value="high">🔴 進取 — 愿意冒險</button>
+      </div>
+      <div class="meta" style="margin:14px 0 6px">時間視野</div>
+      <div class="choice-grid" data-group="horizon">
+        <button class="chip" data-value="short">短期（今日/呢週）</button>
+        <button class="chip picked" data-value="medium">中期（幾個月）</button>
+        <button class="chip" data-value="long">長期（一年以上）</button>
+      </div>
     </div>
     <div class="nav-row">
       <button class="secondary" onclick="goStep(-1)" disabled>上一步</button>
@@ -84,30 +81,30 @@
   </div>
 </div>
 
-<!-- STEP 2: 個人資料 -->
+<!-- STEP 2: 個人資料 — 點擊即加入 -->
 <div id="step-facts" class="wizard-panel">
   <div class="card">
     <div class="step-dots"><span class="done"></span><span class="done"></span><span class="done"></span><span class="active"></span><span></span></div>
-    <h2 style="margin-bottom:4px">📚 加入 3 筆個人資料</h2>
-    <p class="meta">系統會記住呢啲資料，唔使你每次重複解釋。</p>
-    <div class="example">
-      <b>點填：</b>每筆有 3 個欄位。<br>
-      key = 名稱，value = 內容，category = 分類<br>
-      <b>推薦 3 筆：</b><br>
-      1. key:<code>城市</code> value:<code>香港</code> category:<code>個人</code><br>
-      2. key:<code>興趣</code> value:<code>打字員</code> category:<code>個人</code><br>
-      3. key:<code>目標</code> value:<code>減肥</code> category:<code>目標</code>
-    </div>
-    <div style="margin-top:12px">
-      <input id="factKey" placeholder="名稱，例如：城市">
-      <input id="factValue" placeholder="內容，例如：香港">
-      <select id="factCat">
-        <option value="bio">個人</option>
-        <option value="pref">偏好</option>
-        <option value="constraint">限制</option>
-        <option value="goal">目標</option>
-      </select>
-      <button id="addFactBtn" class="secondary">＋ 加入</button>
+    <h2>📚 加入個人資料</h2>
+    <p class="meta">只需按一下，即可加入。你也可以自訂。</p>
+    <div class="example"><b>快速加入：</b>按下面按鈕直接加入。<br><b>自訂：</b>填入 key / value，再按「加入」。</div>
+    <div style="margin-top:10px">
+      <div class="meta" style="margin-bottom:6px">快速加入</div>
+      <div class="choice-grid" id="quickFacts">
+        <button class="chip" data-key="城市" data-value="香港" data-cat="bio">📍 城市=香港</button>
+        <button class="chip" data-key="興趣" data-value="打字員" data-cat="bio">💻 興趣=打字員</button>
+        <button class="chip" data-key="目標" data-value="減肥" data-cat="goal">🎯 目標=減肥</button>
+        <button class="chip" data-key="語言" data-value="廣東話" data-cat="bio">🗣 語言=廣東話</button>
+        <button class="chip" data-key="工作" data-value="自由工作者" data-cat="bio">💼 工作=自由工作者</button>
+        <button class="chip" data-key="限制" data-value="時間有限" data-cat="constraint">⏰ 限制=時間有限</button>
+      </div>
+      <div style="margin-top:14px;border-top:1px dashed #d8dce6;padding-top:12px">
+        <div class="meta" style="margin-bottom:6px">自訂</div>
+        <input id="factKey" placeholder="名稱">
+        <input id="factValue" placeholder="內容">
+        <select id="factCat"><option value="bio">個人</option><option value="pref">偏好</option><option value="constraint">限制</option><option value="goal">目標</option></select>
+        <button id="addFactBtn" class="secondary" style="margin-top:6px">＋ 加入</button>
+      </div>
     </div>
     <div id="factStatus" class="meta" style="margin-top:8px"></div>
     <div class="nav-row">
@@ -117,23 +114,29 @@
   </div>
 </div>
 
-<!-- STEP 3: 第一個決策 -->
+<!-- STEP 3: 第一個決定 — 選擇題 -->
 <div id="step-decision" class="wizard-panel">
   <div class="card">
     <div class="step-dots"><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span><span class="active"></span></div>
-    <h2 style="margin-bottom:4px">🎯 記錄你今日第一個決定</h2>
-    <p class="meta">做咗任何決定就打上來。系統會開始學習你嘅模式。</p>
-    <div class="example">
-      <b>點填：</b>只要填 3 個欄位。<br>
-      <b>主題：</b>決定邊方面，例如：今晚食乜、工作计划<br>
-      <b>選擇：</b>你揀咗咩，例如：壽司、 escrito 報告、唔去Party<br>
-      <b>理由：</b>點解揀呢個（可空）
-    </div>
-    <div style="margin-top:12px">
-      <input id="dTopic" placeholder="決定邊方面，例如：今晚食乜" style="width:100%;max-width:520px">
-      <input id="dChoice" placeholder="你揀咗咩，例如：壽司" style="width:100%;max-width:520px">
-      <input id="dReason" placeholder="點解揀呢個（可空）" style="width:100%;max-width:520px">
-      <button id="addDecisionBtn" class="secondary" style="margin-top:8px">＋ 記錄第一個決定</button>
+    <h2>🎯 今天你做了什麼決定？</h2>
+    <p class="meta">按一下你的決定，或自訂。</p>
+    <div class="example"><b>選擇一個最接近的：</b></div>
+    <div style="margin-top:10px">
+      <div class="meta" style="margin-bottom:6px">快速選擇</div>
+      <div class="choice-grid" id="quickDecisions">
+        <button class="chip" data-topic="今晚食乜" data-choice="壽司">🍣 今晚食壽司</button>
+        <button class="chip" data-topic="工作安排" data-choice="寫報告">📝 寫報告</button>
+        <button class="chip" data-topic="运动" data-choice="跑步">🏃 跑步</button>
+        <button class="chip" data-topic="社交媒體" data-choice="減少使用">📱 減少社交媒體</button>
+        <button class="chip" data-topic="學習" data-choice="看教學影片">📚 看教學</button>
+        <button class="chip" data-topic="消費" data-choice="唔買">💰 忍住唔買</button>
+      </div>
+      <div style="margin-top:14px;border-top:1px dashed #d8dce6;padding-top:12px">
+        <div class="meta" style="margin-bottom:6px">自訂</div>
+        <input id="dTopic" placeholder="決定邊方面" style="width:100%;max-width:520px">
+        <input id="dChoice" placeholder="你揀咗咩" style="width:100%;max-width:520px">
+        <button id="addDecisionBtn" class="secondary" style="margin-top:8px">＋ 記錄</button>
+      </div>
     </div>
     <div id="decisionStatus" class="meta" style="margin-top:8px"></div>
     <div class="nav-row">
@@ -148,8 +151,8 @@
   <div class="success-box">
     <h2>✅ 完成！你的身份雛形已建立</h2>
     <p style="margin:8px 0">你已經有：</p>
-    <p>✓ 個人檔案 ✓ 個人資料 ✓ 第一個決策</p>
-    <p class="meta" style="margin:12px 0 0">之後每次登入，系統都會根據你嘅記錄給你建議。<br>重要提示：每次做決定或反思時，記得回來記錄。</p>
+    <p>✓ 個人檔案 ✓ 個人資料 ✓ 第一個決定</p>
+    <p class="meta" style="margin:12px 0 0">之後每次登入，系統都會根據你嘅記錄給你建議。<br>每次做決定或反思時，記得回來記錄。</p>
     <button onclick="enterApp()" style="margin-top:14px;font-size:1.1rem;padding:14px 28px">進入我的儀表板</button>
   </div>
 </div>
@@ -263,6 +266,27 @@ function renderLogs(d){ const rows=Array.isArray(d.日誌)?d.日誌:[]; if(!rows
 function renderBlindspots(d){ const rows=Array.isArray(d.盲點訊號)?d.盲點訊號:[]; if(!rows.length){ setHtml('blindspots','尚無訊號，等你記錄後按「開始分析」'); return; } setHtml('blindspots', rows.map(r=>'<div class="list-item"><b>'+(r.pattern||r.id)+'</b> · '+(r.severity||'')+'<br><small class="meta">'+(r.evidence||[]).join(' | ')+'</small></div>').join('')); }
 function refreshDecisionsWithOutcome(){ api('/identity/decisions').then(d=>{ const rows=Array.isArray(d.決策)?d.決策:[]; const withOutcome=rows.filter(r=>r.outcome); setHtml('decisionsOutcome', withOutcome.length ? rows.map(r=>'<div class="list-item"><b>'+r.id+'</b> '+(r.topic||'')+' → '+(r.choice||'')+'<br><small class="meta">成果：'+(r.outcome||'無')+' '+(r.outcome_recorded_at||'')+'</small></div>').join('') : '尚無成果，當決定有結果時回來記錄吧！'); }).catch(()=>{}); }
 
+// Chip selection for risk/horizon
+document.querySelectorAll('#step-profile .choice-grid').forEach(grid=>{
+  grid.querySelectorAll('.chip').forEach(btn=>{
+    btn.onclick=()=>{ grid.querySelectorAll('.chip').forEach(b=>b.classList.remove('picked')); btn.classList.add('picked'); };
+  });
+});
+
+// Quick facts
+document.getElementById('quickFacts').querySelectorAll('.chip').forEach(btn=>{
+  btn.onclick=async()=>{
+    try{ await api('/identity/facts',{method:'POST',body:JSON.stringify({category:btn.dataset.cat,key:btn.dataset.key,value:btn.dataset.value})}); btn.classList.add('picked'); setTimeout(()=>btn.classList.remove('picked'),600); setText('factStatus','✅ '+btn.dataset.key+'='+btn.dataset.value+' 已加入','ok'); }catch(e){ alert('加入失敗：'+e.message); }
+  };
+});
+
+// Quick decisions
+document.getElementById('quickDecisions').querySelectorAll('.chip').forEach(btn=>{
+  btn.onclick=async()=>{
+    try{ await api('/identity/decisions',{method:'POST',body:JSON.stringify({topic:btn.dataset.topic,choice:btn.dataset.choice,reasoning:'',tags:[]})}); btn.classList.add('picked'); setTimeout(()=>btn.classList.remove('picked'),600); setText('decisionStatus','✅ '+btn.dataset.topic+' → '+btn.dataset.choice+' 已記錄！','ok'); }catch(e){ alert('記錄失敗：'+e.message); }
+  };
+});
+
 // Auth
 document.getElementById('loginBtn').onclick=async()=>{
   const u=document.getElementById('user').value.trim(); const p=document.getElementById('pass').value;
@@ -284,7 +308,8 @@ function showStep1(){
 }
 
 document.getElementById('saveProfileBtn').onclick=async()=>{
-  const risk=document.getElementById('risk').value; const horizon=document.getElementById('horizon').value;
+  const risk=document.querySelector('#step-profile .choice-grid[data-group="risk"] .chip.picked')?.dataset.value||'';
+  const horizon=document.querySelector('#step-profile .choice-grid[data-group="horizon"] .chip.picked')?.dataset.value||'';
   try{ await api('/identity/profile',{method:'PATCH',body:JSON.stringify({risk_tolerance:risk,time_horizon:horizon})}); alert('✅ 已保存'); }catch(e){ alert('儲存失敗：'+e.message); }
 };
 document.getElementById('addFactBtn').onclick=async()=>{
@@ -295,7 +320,7 @@ document.getElementById('addFactBtn').onclick=async()=>{
 document.getElementById('addDecisionBtn').onclick=async()=>{
   const topic=document.getElementById('dTopic').value.trim(); const choice=document.getElementById('dChoice').value.trim(); const reason=document.getElementById('dReason').value.trim();
   if(!topic||!choice){alert('請輸入決定同你揀咗咩');return;}
-  try{ await api('/identity/decisions',{method:'POST',body:JSON.stringify({topic,choice,reasoning:reason,tags:[]})}); document.getElementById('dTopic').value=''; document.getElementById('dChoice').value=''; document.getElementById('dReason').value=''; setText('decisionStatus','✅ 已記錄第一個決定！','ok'); }catch(e){ alert('記錄失敗：'+e.message); }
+  try{ await api('/identity/decisions',{method:'POST',body:JSON.stringify({topic,choice,reasoning:reason,tags:[]})}); document.getElementById('dTopic').value=''; document.getElementById('dChoice').value=''; document.getElementById('dReason').value=''; setText('decisionStatus','✅ 已記錄！','ok'); }catch(e){ alert('記錄失敗：'+e.message); }
 };
 
 // Init
