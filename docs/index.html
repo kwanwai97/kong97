@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital Twin Frontend</title>
+  <style>
+    body { font-family: "Microsoft JhengHei", sans-serif; max-width: 800px; margin: 30px auto; padding: 0 20px; }
+    .card { border: 1px solid #ddd; padding: 16px; border-radius: 8px; margin: 10px 0; }
+    input, button { margin: 4px; padding: 8px; }
+    pre { background: #f6f6f6; padding: 10px; border-radius: 6px; overflow: auto; }
+  </style>
+</head>
+<body>
+  <h1>Digital Twin · Frontend</h1>
+  <div class="card">
+    <b>後端 Base URL</b>
+    <div>
+      <input id="apiBase" placeholder="https://your-backend.example.com" style="width: 70%;">
+      <button onclick="saveBase()">儲存</button>
+    </div>
+    <p class="status" id="status">尚未 connect</p>
+  </div>
+  <div class="card">
+    <b>健康檢查</b>
+    <button onclick="checkHealth()">/health</button>
+    <pre id="health">尚未檢查</pre>
+  </div>
+  <script>
+    const apiBaseInput = document.getElementById('apiBase');
+    const statusEl = document.getElementById('status');
+    const healthEl = document.getElementById('health');
+    const STORAGE_KEY = 'digital-twin-api-base';
+
+    function getBase() {
+      return apiBaseInput.value.trim() || localStorage.getItem(STORAGE_KEY) || '';
+    }
+    function saveBase() {
+      const v = apiBaseInput.value.trim();
+      if (v) localStorage.setItem(STORAGE_KEY, v);
+      statusEl.textContent = '已設定：' + (v || '(空)');
+    }
+    apiBaseInput.value = localStorage.getItem(STORAGE_KEY) || '';
+
+    async function checkHealth() {
+      const base = getBase();
+      if (!base) { healthEl.textContent = '請先輸入後端 Base URL'; return; }
+      try {
+        const r = await fetch(base.replace(/\/$/, '') + '/health');
+        const j = await r.json();
+        healthEl.textContent = JSON.stringify(j, null, 2);
+        statusEl.textContent = '連線成功：' + base;
+        statusEl.style.color = '#1b5e20';
+      } catch (e) {
+        healthEl.textContent = '連線失敗：' + e.message;
+        statusEl.textContent = '連線失敗';
+        statusEl.style.color = '#b71c1c';
+      }
+    }
+    if (getBase()) checkHealth();
+  </script>
+</body>
+</html>

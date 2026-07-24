@@ -1,0 +1,3 @@
+[deploy]
+start = "python server.py"
+build = "pip install -r requirements.txt"

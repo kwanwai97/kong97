@@ -1,43 +1,21 @@
 # Deploy Guide
 
-## 1) Railway（推薦，5 分鐘）
-1. 註冊 Railway：https://railway.app
-2. 安裝 CLI：
-   ```powershell
-   npm i -g @railway/cli
-   railway login
-   ```
-3. 初始化並部署：
-   ```powershell
-   cd C:\Users\wai\Desktop\digital-twin-dialectical
-   railway init --name digital-twin
-   railway up
-   ```
-4. 完成後 Railway 會給你一個公開 URL，例如：
-   `https://<project>.up.railway.app`
+## 1) GitHub Pages（免費 HTTPS，永久）
+1. 打開 repo：https://github.com/kwanwai97/kong97/settings/pages
+2. Source 選擇 `Deploy from a branch`
+3. Branch 選擇 `main`，資料夾選 `/docs`
+4. Save。等約 1-2 分鐘，網站會出現在：
+   - `https://kwanwai97.github.io/kong97/`
+5. 進入頁面後，在「後端 Base URL」輸入你的後端 HTTPS 網址並按「儲存」
 
-## 2) Render（免費 tier）
-1. 註冊 Render：https://render.com
-2. 連接你的 GitHub repo：`kwanwai97/kong97`
-3. 建立 Web Service：
-   - Runtime: `Python 3`
-   - Build Command: `pip install -r requirements.txt`
-   - Start Command: `python run.py`
-   - Port: `5678`
+## 2) 後端部署（任選其一）
+- Railway：https://railway.app → New Project → Deploy from GitHub → 選擇 `kwanwai97/kong97`
+  ⚠️ Railway 免費 tier 需要綁定信用卡
+- Fly.io：https://fly.io → `fly launch` → `fly deploy`
+- Render：https://render.com → New Web Service → connect repo
 
-## 3) Fly.io
-1. 註冊 Fly：https://fly.io
-2. 安裝 CLI：
-   ```powershell
-   pwsh -Command "iwr https://fly.io/install.ps1 -UseBasicParsing | iex"
-   ```
-3. 部署：
-   ```powershell
-   cd C:\Users\wai\Desktop\digital-twin-dialectical
-   fly launch
-   fly deploy
-   ```
+如果不想付費，後端可繼續在本機用 `launch.bat` 啟動，frontend 的 GitHub Pages 一樣可以用。
 
 ## 注意
-- OpenAI API Key 需要在部署平台上設定環境變數 `OPENAI_API_KEY`，否則會自動 fallback 到 mock 模式。
-- 如果不需要真實 AI，系統仍可正常運行。
+- 後端必須是你可連線的 HTTPS/HTTP 位址，不能是 `127.0.0.1`
+- 前端 base URL 存在瀏覽器 localStorage，一次設定就會記住
