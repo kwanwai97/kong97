@@ -461,3 +461,36 @@ def 解決提醒(reminder_id: str, user: Dict[str, Any] = Depends(取得使用�
 def 身份摘要(user: Dict[str, Any] = Depends(取得使用者), days: int = 3) -> Dict[str, Any]:
     uid = user["user_id"]
     return _proactive().daily_digest(uid, days=days)
+
+
+# Backup / Export / Import
+
+@app.get("/identity/backup/export")
+def 備份匯出(user: Dict[str, Any] = Depends(取得使用者)) -> Dict[str, Any]:
+    from backend.backup import save_backup
+    uid = user["user_id"]
+    return save_backup(uid)
+
+
+@app.get("/identity/backup/list")
+def 備份列表(user: Dict[str, Any] = Depends(取得使用者)) -> Dict[str, Any]:
+    from backend.backup import list_backups
+    uid = user["user_id"]
+    return {"用戶": uid, "備份": list_backups(uid)}
+
+
+@app.post("/identity/backup/import")
+def 備份還原(檔案: Dict[str, Any], user: Dict[str, Any] = Depends(取得使用者)) -> Dict[str, Any]:
+    from backend.backup import import_user
+    uid = user["user_id"]
+    payload = 檔案.get("payload") or {}
+    return import_user(uid, payload)
+
+
+# Agentic Briefing Route
+
+@app.get("/identity/morning-briefing")
+def 晨間簡報(user: Dict[str, Any] = Depends(取得使用者)) -> Dict[str, Any]:
+    from backend.briefing_agent import morning_briefing
+    uid = user["user_id"]
+    return morning_briefing(uid)
