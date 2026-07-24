@@ -39,3 +39,6 @@ Desktop.ini
 # Logs
 *.log
 logs/
+
+# Local database
+*.db
