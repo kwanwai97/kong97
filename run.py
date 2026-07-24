@@ -2,5 +2,6 @@
 from dotenv import load_dotenv
 load_dotenv()
 from backend.api.main import app
+import os
 import uvicorn
 uvicorn.run(app, host="127.0.0.1", port=int(os.getenv("PORT", "5678")), log_level="info")

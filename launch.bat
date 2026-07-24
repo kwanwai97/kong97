@@ -8,8 +8,8 @@ for /f "tokens=5" %%a in ('netstat -ano ^| findstr :5678 ^| findstr LISTENING ^|
 echo starting backend...
 start "DigitalTwin" /B .venv\Scripts\python.exe run.py
 
-timeout /t 5 /nobreak >nul
+ping -n 6 127.0.0.1 >nul
 echo http://127.0.0.1:5678/dashboard/dashboard.html
 start http://127.0.0.1:5678/dashboard/dashboard.html
-timeout /t 2 /nobreak >nul
+ping -n 3 127.0.0.1 >nul
 exit
