@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Digital Twin · 你的數碼身份代理</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Microsoft JhengHei","PingFang HK",sans-serif;background:#0b0d12;color:#e6e8ef;line-height:1.6}
+  .wrap{max-width:980px;margin:0 auto;padding:24px 16px}
+  header{display:flex;justify-content:space-between;align-items:center;padding:18px 0;border-bottom:1px solid #2a2f3a}
+  .logo{font-weight:800;letter-spacing:1px;background:linear-gradient(90deg,#7df9ff,#6ee7b7);-webkit-background-clip:text;color:transparent}
+  .badge{padding:6px 12px;border-radius:999px;background:#7df9ff22;color:#7df9ff;font-size:13px;border:1px solid #7df9ff44}
+  .hero{padding:60px 0 40px;text-align:center}
+  h1{font-size:3.2rem;line-height:1.1;margin-bottom:14px;background:linear-gradient(90deg,#e6e8ef,#9fb8d4);-webkit-background-clip:text;color:transparent}
+  p.lead{font-size:1.25rem;color:#9aa4b2;max-width:700px;margin:0 auto 28px}
+  .cta{display:inline-flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  button{padding:12px 18px;border-radius:10px;border:0;cursor:pointer;font-weight:700}
+  .primary{background:linear-gradient(90deg,#2563eb,#06b6d4);color:#fff}
+  .ghost{background:#ffffff0d;color:#e6e8ef;border:1px solid #ffffff22}
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:40px}
+  .card{background:#0f1219;border:1px solid #1e2430;padding:18px;border-radius:14px}
+  .card h3{font-size:1.1rem;color:#e6e8ef;margin-bottom:8px}
+  .card p{color:#9aa4b2;font-size:0.95rem}
+  .price{background:#0f1219;border:1px solid #1e2430;padding:18px;border-radius:14px;margin-top:16px}
+  .price strong{font-size:1.6rem;background:linear-gradient(90deg,#7df9ff,#6ee7b7);-webkit-background-clip:text;color:transparent}
+  section{padding:36px 0;border-top:1px solid #2a2f3a}
+  .check{color:#6ee7b7}
+  footer{padding:20px 0;color:#6b7280;font-size:0.85rem;text-align:center}
+  @media(max-width:800px){.grid{grid-template-columns:1fr} h1{font-size:2.2rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">DIGITAL TWIN</div>
+    <div class="badge">Private Identity OS</div>
+  </header>
+
+  <div class="hero">
+    <h1>你的數碼身份代理</h1>
+    <p class="lead">AI .execution 很強，但唔知道你係邊類人。Digital Twin 係你的連續性身份層 — 記錄決策、探測盲點、主動提醒。</p>
+    <div class="cta">
+      <button class="primary" onclick="location.href='/docs/index.html'">開啟儀表板</button>
+      <button class="ghost" onclick="location.href='/dashboard/dashboard.html'">辯證模式</button>
+    </div>
+  </div>
+
+  <section>
+    <div class="grid">
+      <div class="card"><h3>🧠 連續身份錨定</h3><p>唔使每次都重新解釋自己。系統記住你嘅 risk tolerance、目標、偏好。</p></div>
+      <div class="card"><h3>🔍 決策因果追蹤</h3><p>記錄你做咗咩決定、理由、結果。事後覆盤，學習加速度。</p></div>
+      <div class="card"><h3>⚠️ 盲點探測</h3><p>自動偵測重複模式、拖延、後悔詞頻、領域集中。AI 做不到，因為冇你嘅歷史。</p></div>
+      <div class="card"><h3>🤖 主動提醒</h3><p>唔等你去問。系統自己 scan，晨檢 briefing，open decision 追蹤。</p></div>
+      <div class="card"><h3>📦 數據擁有權</h3><p>一鍵備份 / 還原 JSON。你擁有所有記憶，唔交畀任何人。</p></div>
+      <div class="card"><h3>👥 多用戶隔離</h3><p>每人獨立 identity 空間。可擴展成團隊版、企業版。</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 style="margin-bottom:10px">商業方案</h2>
+    <div class="grid">
+      <div class="price"><strong>Free</strong><p style="color:#9aa4b2;margin:6px 0">個人測試</p><p><span class="check">✓</span> 50 條決策</p><p><span class="check">✓</span> 7 天備份保留</p><p><span class="check">✓</span> 手動分析盲點</p></div>
+      <div class="price"><strong>Pro $9/月</strong><p style="color:#9aa4b2;margin:6px 0">深度使用者</p><p><span class="check">✓</span> 無限決策</p><p><span class="check">✓</span> 1 年備份保留</p><p><span class="check">✓</span> 自動捕捉 + 晨檢</p></div>
+      <div class="price"><strong>Team $29/月</strong><p style="color:#9aa4b2;margin:6px 0">2-10 人</p><p><span class="check">✓</span> Pro 全功能</p><p><span class="check">✓</span> 集體盲點分析</p><p><span class="check">✓</span> 團隊決策牆</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 style="margin-bottom:10px">為什麼唔用 ChatGPT 而用呢個？</h2>
+    <div class="grid">
+      <div class="card"><h3>通用 AI 嘅極限</h3><p>每次重新開始，冇你嘅連續記憶。你答過嘅問題，佢下次再問一次。</p></div>
+      <div class="card"><h3>Digital Twin 嘅優勢</h3><p>連續 30 天嘅決策歷史，系統知你嘅 pattern、拖延點、偏見點。</p></div>
+      <div class="card"><h3>唔使每月 $20</h3><p>OpenAI 訂閱係消費，呢個係 investment。你嘅身份數據越積越有價值。</p></div>
+    </div>
+  </section>
+
+  <footer>
+    Digital Twin · 數碼身份雛形 · Private by Design · Built for survival in AI era
+  </footer>
+</div>
+</body>
+</html>

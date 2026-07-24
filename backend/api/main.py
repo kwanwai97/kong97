@@ -73,6 +73,7 @@ DOCS_DIR.mkdir(parents=True, exist_ok=True)
 
 app.mount("/dashboard", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="dashboard")
 app.mount("/docs", StaticFiles(directory=str(DOCS_DIR), html=True), name="docs")
+app.mount("/frontend", StaticFiles(directory=str(ROOT.parent / "frontend"), html=True), name="frontend")
 
 
 class 訊息(BaseModel):
@@ -175,7 +176,7 @@ def 大腦狀態() -> Dict[str, Any]:
 
 @app.get("/")
 def 首頁() -> RedirectResponse:
-    return RedirectResponse(url="/docs/index.html")
+    return RedirectResponse(url="/frontend/landing.html")
 
 
 @app.get("/favicon.ico")
