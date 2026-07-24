@@ -18,11 +18,11 @@
   <div class="card">
     <b>後端 Base URL</b>
     <div>
-      <input id="apiBase" placeholder="http://127.0.0.1:5678" style="width: 70%;">
+      <input id="apiBase" placeholder="https://summit-valley-monsters-genes.trycloudflare.com" style="width: 70%;">
       <button onclick="saveBase()">儲存</button>
     </div>
     <p class="status" id="status">尚未 connect</p>
-    <p class="err">⚠️ 請只填 base URL，例如：http://127.0.0.1:5678 。唔好加 /dashboard/dashboard.html</p>
+    <p class="err">⚠️ 請只填 base URL，例如：https://summit-valley-monsters-genes.trycloudflare.com</p>
   </div>
   <div class="card">
     <b>健康檢查</b>
@@ -45,7 +45,7 @@
       statusEl.textContent = '已設定：' + (v || '(空)');
       statusEl.className = 'status';
     }
-    apiBaseInput.value = localStorage.getItem(STORAGE_KEY) || 'http://127.0.0.1:5678';
+    apiBaseInput.value = localStorage.getItem(STORAGE_KEY) || 'https://summit-valley-monsters-genes.trycloudflare.com';
 
     async function checkHealth() {
       const base = getBase();
