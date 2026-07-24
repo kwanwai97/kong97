@@ -494,3 +494,32 @@ def 晨間簡報(user: Dict[str, Any] = Depends(取得使用者)) -> Dict[str, A
     from backend.briefing_agent import morning_briefing
     uid = user["user_id"]
     return morning_briefing(uid)
+
+
+# Autonomous Mode Routes
+
+@app.post("/identity/autonomous/start")
+def 啟動_自主(user: Dict[str, Any] = Depends(取得使用者)) -> Dict[str, Any]:
+    from backend.autonomous_ingest import get_runner, DROP_DIR
+    uid = user["user_id"]
+    runner = get_runner(uid)
+    runner.start()
+    return {"ok": True, "mode": "autonomous", "user_id": uid, "drop_dir": str(DROP_DIR)}
+
+
+@app.post("/identity/autonomous/stop")
+def 停止_自主(user: Dict[str, Any] = Depends(取得使用者)) -> Dict[str, Any]:
+    from backend.autonomous_ingest import get_runner
+    uid = user["user_id"]
+    runner = get_runner(uid)
+    runner.stop()
+    return {"ok": True, "mode": "stopped", "user_id": uid}
+
+
+@app.post("/identity/autonomous/capture")
+def 快速捕捉(user: Dict[str, Any] = Depends(取得使用者), 資料: Dict[str, Any] = {}) -> Dict[str, Any]:
+    from backend.autonomous_ingest import get_runner
+    uid = user["user_id"]
+    text = str(資料.get("text", "") or "")
+    kind = str(資料.get("kind", "quick") or "quick")
+    return get_runner(uid).quick_capture(text, kind=kind)
