@@ -94,8 +94,8 @@
   <div class="card">
     <div class="step-dots"><span class="done"></span><span class="done"></span><span class="done"></span><span class="active"></span><span></span></div>
     <h2>📚 你是邊類人？</h2>
-    <p class="meta">選 3-4 個最接近你的。</p>
-    <div class="choice-grid">
+    <p class="meta">選 3-4 個最接近你的。<span id="factCount" class="meta">0/4</span></p>
+    <div class="choice-grid" id="factsGrid">
       <button class="chip" data-cat="bio" data-key="城市" data-value="香港">📍 我住香港</button>
       <button class="chip" data-cat="bio" data-key="工作" data-value="打工">💼 我是打工仔</button>
       <button class="chip" data-cat="bio" data-key="工作" data-value="自由工作者">💻 自由工作者</button>
@@ -112,12 +112,6 @@
       <button class="chip" data-cat="constraint" data-key="限制" data-value="時間有限">⏰ 時間有限</button>
       <button class="chip" data-cat="constraint" data-key="限制" data-value="預算緊">💸 預算緊</button>
     </div>
-    <div style="margin-top:10px">
-      <input id="factKey" placeholder="其他（名稱）">
-      <input id="factValue" placeholder="其他（內容）">
-      <select id="factCat"><option value="bio">個人</option><option value="pref">偏好</option><option value="constraint">限制</option><option value="goal">目標</option></select>
-      <button id="addFactBtn" class="secondary" style="margin-top:6px">＋ 加入</button>
-    </div>
     <div id="factStatus" class="meta" style="margin-top:8px"></div>
     <div class="nav-row">
       <button class="secondary" onclick="goStep(-1)">返回</button>
@@ -132,7 +126,7 @@
     <div class="step-dots"><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span><span class="active"></span></div>
     <h2>🎯 今天你做了什麼決定？</h2>
     <p class="meta">選一個最接近的，或自訂。</p>
-    <div class="choice-grid">
+    <div class="choice-grid" id="decisionGrid">
       <button class="chip" data-topic="今晚食乜" data-choice="壽司">🍣 今晚食壽司</button>
       <button class="chip" data-topic="今晚食乜" data-choice="快餐">🍔 食快餐</button>
       <button class="chip" data-topic="工作安排" data-choice="寫報告">📝 寫報告</button>
@@ -272,41 +266,56 @@ function showApp(user){
 
 function enterApp(){ showApp({username:'',display_name:''}); }
 
-// Chip selection
-document.querySelectorAll('.choice-grid').forEach(grid=>{
-  grid.querySelectorAll('.chip').forEach(btn=>{
-    btn.onclick=()=>{
-      grid.querySelectorAll('.chip').forEach(b=>b.classList.remove('picked'));
-      btn.classList.add('picked');
-    };
-  });
+// Single-choice chips: risk, horizon
+document.querySelectorAll('#step-risk .chip, #step-horizon .chip').forEach(btn=>{
+  btn.onclick=()=>{
+    const grid = btn.parentElement;
+    grid.querySelectorAll('.chip').forEach(b=>b.classList.remove('picked'));
+    btn.classList.add('picked');
+  };
 });
 
-// Quick facts
-function bindQuickFacts(){
-  document.querySelectorAll('#step-facts .choice-grid:first-of-type .chip').forEach(btn=>{
-    if(btn.dataset.bound) return; btn.dataset.bound='1';
-    btn.onclick=async()=>{
-      try{ await api('/identity/facts',{method:'POST',body:JSON.stringify({category:btn.dataset.cat,key:btn.dataset.key,value:btn.dataset.value})}); btn.classList.add('picked'); setTimeout(()=>btn.classList.remove('picked'),600); setText('factStatus','✅ '+btn.dataset.key+'='+btn.dataset.value+' 已加入','ok'); }catch(e){ alert('加入失敗：'+e.message); }
-    };
-  });
+// Multi-choice chips: facts
+const factsGrid = document.getElementById('factsGrid');
+function updateFactCount(){
+  const count = factsGrid.querySelectorAll('.chip.picked').length;
+  const el = document.getElementById('factCount');
+  if(el) el.textContent = count + '/4';
 }
+factsGrid.querySelectorAll('.chip').forEach(btn=>{
+  btn.onclick=async ()=>{
+    btn.classList.toggle('picked');
+    updateFactCount();
+    try{
+      const cat = btn.dataset.cat, key = btn.dataset.key, value = btn.dataset.value;
+      if(btn.classList.contains('picked')){
+        await api('/identity/facts',{method:'POST',body:JSON.stringify({category:cat,key,value})});
+        setText('factStatus','✅ '+key+'='+value+' 已加入','ok');
+      } else {
+        setText('factStatus','已取消選擇','meta');
+      }
+    }catch(e){ alert('操作失敗：'+e.message); }
+  };
+});
 
-// Quick decisions
-function bindQuickDecisions(){
-  document.querySelectorAll('#step-decision .choice-grid .chip').forEach(btn=>{
-    if(btn.dataset.bound) return; btn.dataset.bound='1';
-    btn.onclick=async()=>{
-      try{ await api('/identity/decisions',{method:'POST',body:JSON.stringify({topic:btn.dataset.topic,choice:btn.dataset.choice,reasoning:'',tags:[]})}); btn.classList.add('picked'); setTimeout(()=>btn.classList.remove('picked'),600); setText('decisionStatus','✅ '+btn.dataset.topic+' → '+btn.dataset.choice+' 已記錄！','ok'); }catch(e){ alert('記錄失敗：'+e.message); }
-    };
-  });
-}
+// Single-choice chips: decisions
+const decisionGrid = document.getElementById('decisionGrid');
+decisionGrid.querySelectorAll('.chip').forEach(btn=>{
+  btn.onclick=async ()=>{
+    decisionGrid.querySelectorAll('.chip').forEach(b=>b.classList.remove('picked'));
+    btn.classList.add('picked');
+    try{
+      await api('/identity/decisions',{method:'POST',body:JSON.stringify({topic:btn.dataset.topic,choice:btn.dataset.choice,reasoning:'',tags:[]})});
+      setText('decisionStatus','✅ '+btn.dataset.topic+' → '+btn.dataset.choice+' 已記錄！','ok');
+    }catch(e){ alert('記錄失敗：'+e.message); }
+  };
+});
 
 // Auth
 document.getElementById('loginBtn').onclick=async()=>{
   const u=document.getElementById('user').value.trim(); const p=document.getElementById('pass').value;
   if(!u||!p){setText('authMsg','請輸入帳號與密碼','err');return;}
-  try{ const j=await api('/auth/login',{method:'POST',body:JSON.stringify({username:u,password:p})}); token=j.token; localStorage.setItem(TOKEN_KEY,token); setText('authMsg','登入成功，正在建立你的引導...','ok'); showPanel(1); bindQuickFacts(); bindQuickDecisions(); }catch(e){ setText('authMsg','登入失敗：'+e.message,'err'); }
+  try{ const j=await api('/auth/login',{method:'POST',body:JSON.stringify({username:u,password:p})}); token=j.token; localStorage.setItem(TOKEN_KEY,token); setText('authMsg','登入成功，正在建立你的引導...','ok'); showPanel(1); }catch(e){ setText('authMsg','登入失敗：'+e.message,'err'); }
 };
 document.getElementById('registerBtn').onclick=async()=>{
   const u=document.getElementById('user').value.trim(); const p=document.getElementById('pass').value; const d=document.getElementById('display').value.trim();
@@ -319,14 +328,6 @@ function saveProfile(){
   const risk=document.querySelector('#step-risk .chip.picked')?.dataset.value||'';
   const horizon=document.querySelector('#step-horizon .chip.picked')?.dataset.value||'';
   return api('/identity/profile',{method:'PATCH',body:JSON.stringify({risk_tolerance:risk,time_horizon:horizon})});
-}
-function getSelectedFacts(){
-  const out=[];
-  document.querySelectorAll('#step-facts .chip.picked').forEach(btn=>out.push({category:btn.dataset.cat,key:btn.dataset.key,value:btn.dataset.value}));
-  return out;
-}
-function saveFacts(){
-  return Promise.all(getSelectedFacts().map(f=>api('/identity/facts',{method:'POST',body:JSON.stringify(f)})));
 }
 
 document.getElementById('saveProfileBtn').onclick=async()=>{
@@ -341,6 +342,29 @@ document.getElementById('addDecisionBtn').onclick=async()=>{
   const topic=document.getElementById('dTopic').value.trim(); const choice=document.getElementById('dChoice').value.trim(); const reason=document.getElementById('dReason').value.trim();
   if(!topic||!choice){alert('請輸入決定同你揀咗咩');return;}
   try{ await api('/identity/decisions',{method:'POST',body:JSON.stringify({topic,choice,reasoning:reason,tags:[]})}); document.getElementById('dTopic').value=''; document.getElementById('dChoice').value=''; document.getElementById('dReason').value=''; setText('decisionStatus','✅ 已記錄！','ok'); }catch(e){ alert('記錄失敗：'+e.message); }
+};
+
+// Auto-save on next-step navigation
+const originalGoStep = goStep;
+goStep = async function(delta){
+  if(delta > 0){
+    if(currentStep === 1){
+      // leaving risk -> save profile partial
+    }
+    if(currentStep === 2){
+      // leaving horizon -> save profile
+      try{ await saveProfile(); }catch(e){ alert('儲存失敗：'+e.message); }
+    }
+    if(currentStep === 3){
+      // leaving facts -> ensure at least 1 fact
+      const picked = factsGrid.querySelectorAll('.chip.picked').length;
+      if(picked === 0){
+        alert('請至少選擇 1 個個人資料');
+        return;
+      }
+    }
+  }
+  showPanel(currentStep+delta);
 };
 
 function renderFacts(d){ const rows=Array.isArray(d.事實)?d.事實:[]; if(!rows.length){ setText('facts','尚無資料，按上方「＋ 加入」開始','meta'); return; } setHtml('facts', rows.map(r=>'['+r.category+'] '+r.key+': '+r.value).join('\\n')); }
