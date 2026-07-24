@@ -3,6 +3,7 @@
 """
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 from datetime import datetime
@@ -21,7 +22,9 @@ from backend.brain.thesis import ThesisEngine
 from backend.brain.antithesis import antithesis
 from backend.brain.synthesis import synthesis
 from backend.brain.memory_graph import MemoryGraph
+from backend.brain.session_aware_memory import SessionMemory
 from backend.explorer.night_wanderer import NightWanderer
+from backend.explorer.finance import FinancialFetcher
 from backend.explorer.peer_alignment import PeerAlignment
 from backend.explorer.briefing import build_briefing
 from backend.explorer.translator import translate_item, translate_briefing
@@ -39,9 +42,11 @@ async def add_cache_headers(request, call_next):
 
 正反合 = ThesisEngine()
 記憶體 = MemoryGraph()
+會話記憶 = SessionMemory()
 巡邏者 = NightWanderer()
 對齊器 = PeerAlignment()
 協同器 = HumanInTheLoop()
+財經fetcher = FinancialFetcher()
 
 ROOT = Path(__file__).resolve().parents[2]
 FRONTEND_DIR = ROOT / "frontend" / "app" / "components"
@@ -81,16 +86,16 @@ def 圖示() -> FileResponse:
 
 @app.post("/ingest")
 def 存入記憶(訊息_: 訊息) -> Dict[str, Any]:
-    t = 正反合.ingest(訊息_.text)
-    return {"已儲存": True, "思考id": getattr(t, "TS", None)}
+    正反合.ingest(訊息_.text)
+    return {"已儲存": True}
 
 
 @app.post("/dialectic")
 def 辯證(訊息_: 訊息) -> Dict[str, Any]:
     正反合.ingest(訊息_.text)
-    正, 主題 = 正反合.answer(訊息_.text)
-    反 = antithesis.challenge(正, topic=主題)
-    整合 = synthesis.fuse(正, 反, topic=主題)
+    正, 主題 = asyncio.run(正反合.answer(訊息_.text))
+    反 = asyncio.run(antithesis.challenge(正, topic=主題))
+    整合 = asyncio.run(synthesis.fuse(正, 反, topic=主題))
     return {"正方": 正, "反方": 反, "整合結論": 整合}
 
 
@@ -98,6 +103,11 @@ def 辯證(訊息_: 訊息) -> Dict[str, Any]:
 def 摘要() -> Dict[str, Any]:
     原始 = 巡邏者.crawl(["arxiv", "github", "hackernews"])
     項目 = [translate_item(it) for it in 原始]
+    try:
+        財務情報 = 財經fetcher.fetch()
+        項目.extend([translate_item(it) for it in 財務情報])
+    except Exception:
+        pass
     result = {
         "情報": 項目,
         "摘要": 巡邏者.summarize(項目),
