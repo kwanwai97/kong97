@@ -13,8 +13,8 @@ from typing import Any, Dict, List
 from dotenv import load_dotenv
 load_dotenv()
 
-from fastapi import FastAPI
-from fastapi.responses import RedirectResponse, FileResponse
+from fastapi import FastAPI, Request, HTTPException, Depends, Header
+from fastapi.responses import RedirectResponse, FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -30,6 +30,8 @@ from backend.explorer.peer_alignment import PeerAlignment
 from backend.explorer.briefing import build_briefing
 from backend.explorer.translator import translate_item, translate_briefing
 from backend.safety.human_in_the_loop import HumanInTheLoop
+from backend import identity as identity_module
+from backend import auth as auth_module
 
 HITL = HumanInTheLoop()
 
@@ -44,9 +46,9 @@ app.add_middleware(
 )
 
 @app.middleware("http")
-async def add_cache_headers(request, call_next):
+async def add_cache_headers(request: Request, call_next):
     response = await call_next(request)
-    if request.url.path.startswith("/dashboard"):
+    if request.url.path.startswith("/dashboard") or request.url.path.startswith("/docs"):
         response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
         response.headers["Pragma"] = "no-cache"
     return response
@@ -58,13 +60,19 @@ async def add_cache_headers(request, call_next):
 對齊器 = PeerAlignment()
 協同器 = HITL
 財經fetcher = FinancialFetcher()
+身份層 = identity_module.IdentityLayer()
 
-ROOT = Path(__file__).resolve().parents[2]
-FRONTEND_DIR = ROOT / "frontend" / "app" / "components"
-DATA_DIR = ROOT / "data"
+ROOT = Path(__file__).resolve().parents[1]
+FRONTEND_DIR = ROOT.parent / "frontend" / "app" / "components"
+DOCS_DIR = ROOT.parent / "docs"
+DATA_DIR = ROOT.parent / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
+FRONTEND_DIR.mkdir(parents=True, exist_ok=True)
+DOCS_DIR.mkdir(parents=True, exist_ok=True)
+
 app.mount("/dashboard", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="dashboard")
+app.mount("/docs", StaticFiles(directory=str(DOCS_DIR), html=True), name="docs")
 
 
 class 訊息(BaseModel):
@@ -78,6 +86,30 @@ class 行動(BaseModel):
 class 比較(BaseModel):
     a: str
     b: str
+
+
+class 註冊輸入(BaseModel):
+    username: str
+    password: str
+    display_name: str = ""
+
+
+class 登入輸入(BaseModel):
+    username: str
+    password: str
+
+
+PROTECTED_PREFIXES = ("/identity", "/sessions", "/ingest", "/memory/search")
+PUBLIC_PATHS = ("/health", "/brain/status", "/dialectic", "/digest", "/briefing/today") + tuple(f"/auth{r}" for r in ["/register", "/login"])
+
+
+async def 取得使用者(x_user_token: str = Header(default="", alias="X-User-Token")) -> Dict[str, Any]:
+    if not x_user_token:
+        raise HTTPException(status_code=401, detail="缺少 X-User-Token")
+    info = auth_module.verify(x_user_token)
+    if not info:
+        raise HTTPException(status_code=401, detail="無效或已過期的 X-User-Token")
+    return {"user_id": info["user_id"], "username": info["username"]}
 
 
 @app.get("/health")
@@ -99,7 +131,6 @@ def 大腦狀態() -> Dict[str, Any]:
         "base_url": host,
         "provider": provider,
     }
-    # 真實驗證 LLM 可否連線
     ok = False
     latency_ms = 0
     try:
@@ -128,9 +159,10 @@ def 大腦狀態() -> Dict[str, Any]:
         "checks": checks,
     }
 
+
 @app.get("/")
 def 首頁() -> RedirectResponse:
-    return RedirectResponse(url="/dashboard/dashboard.html")
+    return RedirectResponse(url="/docs/index.html")
 
 
 @app.get("/favicon.ico")
@@ -138,8 +170,24 @@ def 圖示() -> FileResponse:
     return FileResponse(str(FRONTEND_DIR / "dashboard.html"), status_code=204)
 
 
+@app.post("/auth/register")
+def 註冊(資料: 註冊輸入) -> Dict[str, Any]:
+    res = auth_module.register(資料.username.strip(), 資料.password, (資料.display_name or "").strip())
+    if not res.get("ok"):
+        raise HTTPException(status_code=400, detail=res.get("error", "註冊失敗"))
+    return res
+
+
+@app.post("/auth/login")
+def 登入(資料: 登入輸入) -> Dict[str, Any]:
+    res = auth_module.login(資料.username.strip(), 資料.password)
+    if not res.get("ok"):
+        raise HTTPException(status_code=401, detail=res.get("error", "登入失敗"))
+    return res
+
+
 @app.post("/ingest")
-def 存入記憶(訊息_: 訊息) -> Dict[str, Any]:
+def 存入記憶(訊息_: 訊息, user: Dict[str, Any] = Depends(取得使用者)) -> Dict[str, Any]:
     正反合.ingest(訊息_.text)
     return {"已儲存": True}
 
@@ -226,26 +274,33 @@ def 手動簡報() -> Dict[str, Any]:
 
 
 @app.get("/memory/search")
-def 搜尋記憶(查詢: str) -> Dict[str, Any]:
+def 搜尋記憶(查詢: str, user: Dict[str, Any] = Depends(取得使用者)) -> Dict[str, Any]:
     結果 = 記憶體.search(查詢)
     return {"查詢": 查詢, "結果": 結果, "數量": len(結果)}
+
 
 class 會話訊息(BaseModel):
     text: str
     role: str = "user"
 
+
 @app.get("/sessions")
-def 列出會話(api_key: str = "anonymous") -> Dict[str, Any]:
-    return {"會話": 會話記憶.list_sessions(api_key)}
+def 列出會話(api_key: str = "anonymous", user: Dict[str, Any] = Depends(取得使用者)) -> Dict[str, Any]:
+    key = user.get("user_id") or api_key
+    return {"會話": 會話記憶.list_sessions(key)}
+
 
 @app.post("/sessions/{thread_id}/ingest")
-def 會話寫入(thread_id: str, 訊息_: 會話訊息, api_key: str = "anonymous") -> Dict[str, Any]:
-    會話記憶.append(api_key, 訊息_.role or "user", 訊息_.text, thread_id=thread_id)
+def 會話寫入(thread_id: str, 訊息_: 會話訊息, api_key: str = "anonymous", user: Dict[str, Any] = Depends(取得使用者)) -> Dict[str, Any]:
+    key = user.get("user_id") or api_key
+    會話記憶.append(key, 訊息_.role or "user", 訊息_.text, thread_id=thread_id)
     return {"已儲存": True}
 
+
 @app.get("/sessions/{thread_id}/recent")
-def 會話最近(thread_id: str, api_key: str = "anonymous", limit: int = 20) -> Dict[str, Any]:
-    return {"會話": 會話記憶.recent(api_key, thread_id=thread_id, limit=limit)}
+def 會話最近(thread_id: str, api_key: str = "anonymous", limit: int = 20, user: Dict[str, Any] = Depends(取得使用者)) -> Dict[str, Any]:
+    key = user.get("user_id") or api_key
+    return {"會話": 會話記憶.recent(key, thread_id=thread_id, limit=limit)}
 
 
 @app.post("/peers/align")
@@ -257,3 +312,101 @@ def 對齊(資料: 比較) -> Dict[str, Any]:
 @app.post("/approve")
 def 核准(行動_: 行動) -> Dict[str, Any]:
     return {"核准結果": 協同器.approve({"標籤": 行動_.label})}
+
+
+# Identity API Routes
+
+@app.get("/identity/profile")
+def 取得個人檔案(user: Dict[str, Any] = Depends(取得使用者)) -> Dict[str, Any]:
+    uid = user["user_id"]
+    身份層.ensure_profile(uid)
+    return 身份層.get_profile(uid)
+
+
+@app.patch("/identity/profile")
+def 更新個人檔案(資料: Dict[str, Any], user: Dict[str, Any] = Depends(取得使用者)) -> Dict[str, Any]:
+    uid = user["user_id"]
+    return 身份層.update_profile(uid, **資料)
+
+
+@app.get("/identity/decisions")
+def 取得決策紀錄(user: Dict[str, Any] = Depends(取得使用者), limit: int = 50) -> Dict[str, Any]:
+    uid = user["user_id"]
+    rows = 身份層.list_decisions(uid, limit=limit)
+    return {"用戶": uid, "決策": rows}
+
+
+@app.post("/identity/decisions")
+def 新增決策(資料: Dict[str, Any], user: Dict[str, Any] = Depends(取得使用者)) -> Dict[str, Any]:
+    uid = user["user_id"]
+    topic = 資料.get("topic", "")
+    choice = 資料.get("choice", "")
+    reasoning = 資料.get("reasoning", "")
+    tags = 資料.get("tags", []) or []
+    if not topic or not choice:
+        raise HTTPException(status_code=400, detail="缺少 topic / choice")
+    entry = 身份層.record_decision(uid, topic, choice, reasoning=reasoning, tags=tags)
+    return entry
+
+
+@app.post("/identity/decisions/outcome")
+def 記錄成果(資料: Dict[str, Any], user: Dict[str, Any] = Depends(取得使用者)) -> Dict[str, Any]:
+    uid = user["user_id"]
+    did = 資料.get("decision_id", "")
+    outcome = 資料.get("outcome", "")
+    if not did or outcome is None or outcome == "":
+        raise HTTPException(status_code=400, detail="缺少 decision_id / outcome")
+    return 身份層.record_outcome(uid, did, str(outcome))
+
+
+@app.get("/identity/blindspots")
+def 取得盲點(user: Dict[str, Any] = Depends(取得使用者), status: str = "active") -> Dict[str, Any]:
+    uid = user["user_id"]
+    rows = 身份層.list_blindspots(uid, status=status)
+    return {"用戶": uid, "盲點訊號": rows}
+
+
+@app.post("/identity/blindspots/analyze")
+def 分析盲點(user: Dict[str, Any] = Depends(取得使用者)) -> Dict[str, Any]:
+    from backend.identity_analyzer import analyze_blindspots
+    uid = user["user_id"]
+    signals = analyze_blindspots(uid)
+    saved = [身份層.add_blindspot_signal(uid, s["pattern"], evidence=s.get("evidence", []), severity=s.get("severity", "medium")) for s in signals]
+    return {"用戶": uid, "已產生": saved}
+
+
+@app.post("/identity/daily-log")
+def 新增日誌(資料: Dict[str, Any], user: Dict[str, Any] = Depends(取得使用者)) -> Dict[str, Any]:
+    uid = user["user_id"]
+    entries = 資料.get("entries", [])
+    if not isinstance(entries, list) or len(entries) == 0:
+        raise HTTPException(status_code=400, detail="entries 為必填")
+    return 身份層.append_daily_log(uid, entries)
+
+
+@app.get("/identity/daily-log")
+def 取得日誌(user: Dict[str, Any] = Depends(取得使用者), days: int = 7) -> Dict[str, Any]:
+    uid = user["user_id"]
+    rows = 身份層.get_daily_log(uid, days=days)
+    return {"用戶": uid, "日誌": rows}
+
+
+@app.post("/identity/facts")
+def 設定個人事實(資料: Dict[str, Any], user: Dict[str, Any] = Depends(取得使用者)) -> Dict[str, Any]:
+    uid = user["user_id"]
+    category = str(資料.get("category", ""))
+    key = str(資料.get("key", ""))
+    value = str(資料.get("value", ""))
+    confidence = float(資料.get("confidence", 1.0) or 1.0)
+    source = str(資料.get("source", "user_input") or "user_input")
+    if not category or not key or value is None or value == "":
+        raise HTTPException(status_code=400, detail="category / key / value 為必填")
+    return 身份層.set_user_fact(uid, category, key, value, confidence=confidence, source=source)
+
+
+@app.get("/identity/facts")
+def 取得個人事實(user: Dict[str, Any] = Depends(取得使用者), category: str = "") -> Dict[str, Any]:
+    uid = user["user_id"]
+    cat = category.strip() or None
+    rows = 身份層.get_user_facts(uid, category=cat)
+    return {"用戶": uid, "事實": rows}
