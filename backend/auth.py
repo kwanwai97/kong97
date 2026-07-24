@@ -38,7 +38,7 @@ def register(username, password, display_name=""):
         "last_login": None,
     }
     _save_json(USERS_FILE, users)
-    return {"ok": True, "user_id": uid, "username": username}
+    return {"ok": True, "user_id": uid, "username": username, "display_name": display_name or username}
 
 
 def login(username, password):
