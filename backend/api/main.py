@@ -74,6 +74,17 @@ def 健康檢查() -> Dict[str, str]:
     return {"狀態": "正常"}
 
 
+@app.get("/brain/status")
+def 大腦狀態() -> Dict[str, Any]:
+    engine = 正反合
+    status = {
+        "llm_host": getattr(getattr(engine, "llm", None), "base_url", ""),
+        "llm_model": getattr(getattr(engine, "llm", None), "model", ""),
+        "已啟動": bool(getattr(getattr(engine, "llm", None), "model", "")),
+    }
+    return status
+
+
 @app.get("/")
 def 首頁() -> RedirectResponse:
     return RedirectResponse(url="/dashboard/dashboard.html")

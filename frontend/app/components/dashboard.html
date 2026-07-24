@@ -13,7 +13,8 @@
 </style>
 </head>
 <body>
-<h1>Digital Twin 狀態：<span id="status">就緒</span></h1>
+<h1>Digital Twin 狀態：<span id="status">檢查中...</span></h1>
+<div id="brainStatus" style="margin:6px 0; color:#555;">大腦狀態：讀取中...</div>
 
 <textarea id="inputText" rows="4" cols="100" placeholder="請輸入要分析的文本..."></textarea><br>
 
@@ -50,6 +51,23 @@ const statusEl = document.getElementById('status');
 const nextStepEl = document.getElementById('nextStep');
 
 function setStatus(s) { statusEl.textContent = s; }
+
+async function showBrainStatus() {
+  const el = document.getElementById('brainStatus');
+  if (!el) return;
+  try {
+    const data = await api('/brain/status');
+    const host = data.llm_host || '';
+    const model = data.llm_model || '';
+    const on = data.已啟動 ? '已啟動' : '未啟動';
+    el.textContent = `大腦狀態：${on}（${model} @ ${host}）`;
+    if (data.已啟動) el.style.color = '#1b5e20';
+    else el.style.color = '#b71c1c';
+  } catch (e) {
+    el.textContent = '大腦狀態：讀取失敗';
+    el.style.color = '#b71c1c';
+  }
+}
 
 function log(msg) {
   const time = new Date().toLocaleTimeString('zh-TW');
@@ -215,6 +233,7 @@ document.getElementById('approve').onclick = async () => {
 };
 
 setStatus('就緒');
+showBrainStatus();
 </script>
 </body>
 </html>
