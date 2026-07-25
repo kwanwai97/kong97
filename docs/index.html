@@ -6,113 +6,66 @@
 <title>Digital Twin · 你的身份助手</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:"Microsoft JhengHei","PingFang HK",sans-serif;max-width:720px;margin:0 auto;padding:20px 16px;color:#1f1f1f;background:#f7f8fb}
-  .card{border:1px solid #d8dce6;padding:18px;border-radius:12px;background:#fff;margin:12px 0;box-shadow:0 2px 6px rgba(0,0,0,0.04)}
-  button{margin:6px 4px;padding:12px 18px;border:0;border-radius:10px;background:#2276d6;color:#fff;cursor:pointer;font-size:1rem;font-weight:600}
+  body{font-family:"Microsoft JhengHei","PingFang HK",sans-serif;max-width:480px;margin:0 auto;padding:16px;color:#1f1f1f;background:#f7f8fb}
+  .card{border:1px solid #d8dce6;padding:18px;border-radius:12px;background:#fff;margin:12px 0;box-shadow:0 1px 3px rgba(0,0,0,0.04)}
+  button{margin:6px;padding:14px;border:0;border-radius:10px;background:#2276d6;color:#fff;cursor:pointer;font-size:1.05rem;font-weight:600;min-width:100px}
   button.secondary{background:#6a737d}
   button.danger{background:#c0392b}
-  button.chip{background:#eef3ff;color:#1a237e;font-weight:500;font-size:.92rem;padding:12px 16px;border-radius:999px;border:2px solid transparent}
+  button.chip{background:#eef3ff;color:#1a237e;font-weight:500;font-size:.92rem;padding:12px 14px;border-radius:999px;border:2px solid transparent;display:inline-block;margin:4px}
   button.chip:hover{background:#dde4ff}
-  button.chip.picked{background:#1a237e;color:#fff;border-color:#1a237e}
-  input,select{margin:6px 4px;padding:12px;border:1px solid #ccd2dc;border-radius:10px;min-width:140px;font-size:1rem}
-  select{min-width:160px}
+  button.chip.picked{background:#1a237e;color:#fff}
+  input,select{margin:6px;padding:12px;border:1px solid #ccd2dc;border-radius:10px;font-size:1rem;width:100%}
   .ok{color:#1b5e20}.err{color:#b71c1c}.meta{color:#6a737d;font-size:.9em}
   .hidden{display:none}
-  .wizard-panel{display:none}
-  .wizard-panel.active{display:block}
-  .step-dots{text-align:center;margin:16px 0}
+  .step-dots{text-align:center;margin:12px 0}
   .step-dots span{display:inline-block;width:10px;height:10px;border-radius:50%;background:#d0d5dd;margin:0 6px}
   .step-dots span.active{background:#2276d6}
   .step-dots span.done{background:#1b5e20}
   .example{background:#f0f4ff;border-left:4px solid #2276d6;padding:10px 12px;border-radius:0 8px 8px 0;margin:10px 0;font-size:.92rem;color:#1a3a5c}
-  .example b{color:#2276d6}
   .success-box{background:#e8f5e9;border:2px solid #1b5e20;padding:16px;border-radius:12px;text-align:center;margin:20px 0}
   .success-box h2{color:#1b5e20;margin-bottom:8px}
   .nav-row{display:flex;justify-content:space-between;margin-top:12px}
-  .nav-row button{min-width:120px}
-  .choice-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+  .nav-row button{min-width:100px}
+  .choice-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;justify-content:center}
+  .big-btn{font-size:1.2rem;padding:18px;width:100%;margin:6px 0;text-align:left}
+  .empty{color:#999;font-style:italic;padding:10px 0}
 </style>
 </head>
 <body>
 
 <!-- STEP 0: 登入/註冊 -->
 <div id="step-auth" class="wizard-panel active">
-  <div class="card" style="text-align:center;padding:28px">
-    <h1 style="font-size:1.8rem;margin-bottom:6px">👋 歡迎來到 Digital Twin</h1>
-    <p class="meta" style="font-size:1.05rem;margin:8px 0 16px">你的專屬身份助手。系統會記住你的決定、偵測你的盲點、主動提醒你。<br>首次使用請註冊，之後同一帳號登入即可。</p>
-    <div class="example">
-      <b>第一步：建立帳號</b><br>
-      帳號/密碼隨便打，例如 <code>kwan</code> / <code>test123</code>
-    </div>
-    <input id="user" placeholder="帳號" style="width:100%;max-width:320px;margin-top:12px">
-    <input id="pass" type="password" placeholder="密碼" style="width:100%;max-width:320px">
-    <input id="display" placeholder="你的名稱（選填）" style="width:100%;max-width:320px">
-    <div style="margin-top:14px">
-      <button id="loginBtn">登入</button>
-      <button id="registerBtn" class="secondary">註冊新帳號</button>
+  <div class="card" style="text-align:center;padding:24px">
+    <h1 style="font-size:1.6rem;margin-bottom:6px">👋 Digital Twin</h1>
+    <p class="meta">記住你的決定，幫你減少後悔。</p>
+    <input id="user" placeholder="帳號" style="max-width:280px">
+    <input id="pass" type="password" placeholder="密碼" style="max-width:280px">
+    <div style="margin-top:12px">
+      <button id="loginBtn" style="min-width:120px">登入</button>
+      <button id="registerBtn" class="secondary" style="min-width:120px">註冊</button>
     </div>
     <div id="authMsg" class="meta" style="margin-top:10px"></div>
   </div>
 </div>
 
-<!-- STEP 1: 風險偏好 -->
-<div id="step-risk" class="wizard-panel">
-  <div class="card">
-    <div class="step-dots"><span class="done"></span><span class="active"></span><span></span><span></span><span></span></div>
-    <h2>🙋 遇到新機會時，你通常會…</h2>
-    <p class="meta">選擇最接近你的選項。</p>
-    <div class="choice-grid" data-group="risk">
-      <button class="chip" data-value="low">🟢 保守 — 唔敢冒險</button>
-      <button class="chip picked" data-value="medium">🟡 中等 — 適度冒險</button>
-      <button class="chip" data-value="high">🔴 進取 — 愿意冒險</button>
-    </div>
-    <div class="nav-row">
-      <button class="secondary" onclick="goStep(-1)">返回</button>
-      <button onclick="goStep(1)">下一步</button>
-    </div>
-  </div>
-</div>
-
-<!-- STEP 2: 時間視野 -->
-<div id="step-horizon" class="wizard-panel">
-  <div class="card">
-    <div class="step-dots"><span class="done"></span><span class="done"></span><span class="active"></span><span></span><span></span></div>
-    <h2>⏳ 做決定時，你主要考慮…</h2>
-    <p class="meta">選擇最接近你的選項。</p>
-    <div class="choice-grid" data-group="horizon">
-      <button class="chip" data-value="short">短期（今日/呢週）</button>
-      <button class="chip picked" data-value="medium">中期（幾個月）</button>
-      <button class="chip" data-value="long">長期（一年以上）</button>
-    </div>
-    <div class="nav-row">
-      <button class="secondary" onclick="goStep(-1)">返回</button>
-      <button onclick="goStep(1)">下一步</button>
-    </div>
-  </div>
-</div>
-
-<!-- STEP 3: 個人資料 -->
+<!-- STEP 1: 你是哪一類人 -->
 <div id="step-facts" class="wizard-panel">
   <div class="card">
-    <div class="step-dots"><span class="done"></span><span class="done"></span><span class="done"></span><span class="active"></span><span></span></div>
-    <h2>📚 你是邊類人？</h2>
-    <p class="meta">選 3-4 個最接近你的。<span id="factCount" class="meta">0/4</span></p>
-    <div class="choice-grid" id="factsGrid">
-      <button class="chip" data-cat="bio" data-key="城市" data-value="香港">📍 我住香港</button>
-      <button class="chip" data-cat="bio" data-key="工作" data-value="打工">💼 我是打工仔</button>
+    <div class="step-dots"><span class="done"></span><span class="active"></span><span></span><span></span></div>
+    <h2>📚 你是哪一類人？</h2>
+    <p class="meta">選 3 個最接近你的。（可選多個）</p>
+    <div id="factsGrid" class="choice-grid">
+      <button class="chip" data-cat="bio" data-key="城市" data-value="香港">📍 香港</button>
+      <button class="chip" data-cat="bio" data-key="工作" data-value="打工">💼 打工</button>
       <button class="chip" data-cat="bio" data-key="工作" data-value="自由工作者">💻 自由工作者</button>
       <button class="chip" data-cat="bio" data-key="年齡層" data-value="20-30">🎂 20-30 歲</button>
       <button class="chip" data-cat="bio" data-key="年齡層" data-value="30-40">🎂 30-40 歲</button>
-      <button class="chip" data-cat="pref" data-key="興趣" data-value="打字員">🖥 喜歡打字</button>
-      <button class="chip" data-cat="pref" data-key="興趣" data-value="運動">🏃 喜歡運動</button>
-      <button class="chip" data-cat="pref" data-key="興趣" data-value="影音">🎬 喜歡睇片</button>
-      <button class="chip" data-cat="pref" data-key="興趣" data-value="閱讀">📚 喜歡閱讀</button>
+      <button class="chip" data-cat="pref" data-key="興趣" data-value="運動">🏃 愛運動</button>
+      <button class="chip" data-cat="pref" data-key="興趣" data-value="閱讀">📚 愛閱讀</button>
+      <button class="chip" data-cat="pref" data-key="興趣" data-value="影音">🎬 愛睇片</button>
       <button class="chip" data-cat="goal" data-key="目標" data-value="減肥">🎯 想減肥</button>
       <button class="chip" data-cat="goal" data-key="目標" data-value="進修">📖 想進修</button>
       <button class="chip" data-cat="goal" data-key="目標" data-value="儲錢">💰 想儲錢</button>
-      <button class="chip" data-cat="goal" data-key="目標" data-value="創業">🚀 想創業</button>
-      <button class="chip" data-cat="constraint" data-key="限制" data-value="時間有限">⏰ 時間有限</button>
-      <button class="chip" data-cat="constraint" data-key="限制" data-value="預算緊">💸 預算緊</button>
     </div>
     <div id="factStatus" class="meta" style="margin-top:8px"></div>
     <div class="nav-row">
@@ -122,120 +75,86 @@
   </div>
 </div>
 
-<!-- STEP 4: 今日決定 -->
+<!-- STEP 2: 你的決定風格 -->
 <div id="step-decision" class="wizard-panel">
   <div class="card">
-    <div class="step-dots"><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span><span class="active"></span></div>
-    <h2>🎯 今天你做了什麼決定？</h2>
-    <p class="meta">選一個最接近的，或自訂。</p>
-    <div class="choice-grid" id="decisionGrid">
-      <button class="chip" data-topic="今晚食乜" data-choice="壽司">🍣 今晚食壽司</button>
-      <button class="chip" data-topic="今晚食乜" data-choice="快餐">🍔 食快餐</button>
-      <button class="chip" data-topic="工作安排" data-choice="寫報告">📝 寫報告</button>
-      <button class="chip" data-topic="工作安排" data-choice="開會">💬 開會</button>
+    <div class="step-dots"><span class="done"></span><span class="done"></span><span class="active"></span><span></span></div>
+    <h2>🎯 今日你做了什么決定？</h2>
+    <p class="meta">選一個，或寫自己的。</p>
+    <div id="decisionGrid" class="choice-grid">
+      <button class="chip" data-topic="今晚食乜" data-choice="壽司">🍣 壽司</button>
+      <button class="chip" data-topic="今晚食乜" data-choice="快餐">🍔 快餐</button>
+      <button class="chip" data-topic="工作" data-choice="寫報告">📝 寫報告</button>
+      <button class="chip" data-topic="工作" data-choice="開會">💬 開會</button>
       <button class="chip" data-topic="運動" data-choice="跑步">🏃 跑步</button>
-      <button class="chip" data-topic="運動" data-choice="去健身">🏋️ 健身</button>
+      <button class="chip" data-topic="運動" data-choice="健身">🏋️ 健身</button>
       <button class="chip" data-topic="社交媒體" data-choice="減少使用">📱 減少社交媒體</button>
-      <button class="chip" data-topic="學習" data-choice="看教學影片">📚 看教學</button>
-      <button class="chip" data-topic="消費" data-choice="唔買">💰 忍住唔買</button>
-      <button class="chip" data-topic="消費" data-choice="照買">🛍 照買</button>
+      <button class="chip" data-topic="消費" data-choice="忍住唔買">💰 忍手</button>
     </div>
-    <div style="margin-top:14px;border-top:1px dashed #d8dce6;padding-top:12px">
-      <div class="meta" style="margin-bottom:6px">自訂</div>
-      <input id="dTopic" placeholder="決定邊方面" style="width:100%;max-width:520px">
-      <input id="dChoice" placeholder="你揀咗咩" style="width:100%;max-width:520px">
-      <button id="addDecisionBtn" class="secondary" style="margin-top:8px">＋ 記錄</button>
+    <div style="margin-top:10px;border-top:1px dashed #d8dce6;padding-top:10px">
+      <div class="meta" style="margin-bottom:4px">或寫自己的：</div>
+      <input id="dTopic" placeholder="主題">
+      <input id="dChoice" placeholder="選擇">
     </div>
     <div id="decisionStatus" class="meta" style="margin-top:8px"></div>
     <div class="nav-row">
       <button class="secondary" onclick="goStep(-1)">返回</button>
-      <button class="primary" onclick="goStep(1)">完成</button>
+      <button onclick="goStep(1)">完成</button>
     </div>
   </div>
 </div>
 
-<!-- STEP 5: 完成 -->
+<!-- STEP 3: 完成 -->
 <div id="step-done" class="wizard-panel">
   <div class="success-box">
-    <h2>✅ 完成！你的身份雛形已建立</h2>
-    <p style="margin:8px 0">你已經有：</p>
-    <p>✓ 個人檔案 ✓ 個人資料 ✓ 今日決定</p>
-    <p class="meta" style="margin:12px 0 0">之後每次登入，系統都會根據你嘅記錄給你建議。<br>每次做決定或反思時，記得回來記錄。</p>
-    <button onclick="enterApp()" style="margin-top:14px;font-size:1.1rem;padding:14px 28px">進入我的儀表板</button>
+    <h2>✅ 完成</h2>
+    <p style="margin:8px 0">系統已經開始認識你。</p>
+    <p class="meta">之後每次登入，按中間 3 個按鈕操作：<br>記錄決定 · 寫日誌 · 睇我的模式</p>
+    <button onclick="enterApp()" style="margin-top:14px;font-size:1.1rem;padding:14px 28px">開始使用</button>
   </div>
 </div>
 
-<!-- 主介面 -->
+<!-- 主介面：3 個按鈕 -->
 <div id="app" class="hidden">
-  <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-    <div>
-      <b id="greet">您好</b> <span id="userName" class="meta"></span>
-      <div class="meta" id="tokenMeta"></div>
+  <div class="card" style="text-align:center;padding:22px">
+    <h2 id="greet" style="font-size:1.4rem;margin-bottom:4px">您好</h2>
+    <p class="meta" id="userName"></p>
+    <div style="margin-top:14px">
+      <button class="big-btn" onclick="showSection('decision')">🎯 記錄決定</button>
+      <button class="big-btn secondary" onclick="showSection('log')">📝 寫日誌</button>
+      <button class="big-btn secondary" onclick="showSection('insight')">📊 我的模式</button>
     </div>
-    <div>
-      <button id="logoutBtn" class="danger">登出</button>
-    </div>
+    <button id="logoutBtn" class="danger" style="margin-top:10px;width:100%">登出</button>
   </div>
-  <div class="grid">
-    <div class="card">
-      <b>🙋 關於我</b>
-      <div style="margin-top:8px">
-        <select id="risk"><option value="">風險偏好</option><option value="low">保守</option><option value="medium">中等</option><option value="high">進取</option></select>
-        <select id="horizon"><option value="">時間視野</option><option value="short">短期</option><option value="medium">中期</option><option value="long">長期</option></select>
-        <button id="saveProfileBtn" class="secondary">保存</button>
-      </div>
-      <pre id="profile" style="max-height:180px">尚無檔案</pre>
+
+  <!-- 記錄決定 -->
+  <div id="section-decision" class="card hidden">
+    <b>🎯 記錄決定</b>
+    <div style="margin-top:10px">
+      <input id="sTopic" placeholder="主題（例如：今晚食乜）">
+      <input id="sChoice" placeholder="你揀咗咩">
+      <button onclick="submitDecision()" style="width:100%;margin-top:6px">記錄</button>
     </div>
-    <div class="card">
-      <b>📚 個人資料庫</b>
-      <div id="factsEdit" style="display:none;margin-top:8px">
-        <input id="factKey" placeholder="名稱">
-        <input id="factValue" placeholder="內容">
-        <select id="factCat"><option value="bio">個人</option><option value="pref">偏好</option><option value="constraint">限制</option><option value="goal">目標</option></select>
-        <button id="addFactBtn" class="secondary">＋ 加入</button>
-        <button id="cancelFactBtn" class="secondary">取消</button>
-      </div>
-      <pre id="facts" style="max-height:180px">尚無資料</pre>
-      <button id="editFactsBtn" class="secondary" style="margin-top:6px">✎ 修改資料</button>
+    <div id="sDecisionMsg" class="meta" style="margin-top:8px"></div>
+    <button class="secondary" onclick="hideSections()" style="width:100%;margin-top:8px">返回</button>
+  </div>
+
+  <!-- 寫日誌 -->
+  <div id="section-log" class="card hidden">
+    <b>📝 寫日誌</b>
+    <div style="margin-top:10px">
+      <textarea id="sLog" rows="4" placeholder="今日發生咗咩..." style="width:100%;padding:12px;border:1px solid #ccd2dc;border-radius:10px;font-size:1rem;resize:vertical"></textarea>
+      <button onclick="submitLog()" style="width:100%;margin-top:6px">新增</button>
     </div>
-    <div class="card">
-      <b>🎯 今日決定</b>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-        <input id="dTopic" placeholder="主題">
-        <input id="dChoice" placeholder="選擇">
-        <input id="dReason" placeholder="理由">
-        <input id="dTags" placeholder="標籤" style="min-width:100px">
-        <button id="addDecisionBtn" class="secondary">＋ 記錄</button>
-      </div>
-      <div id="decisions" style="max-height:240px;overflow:auto;margin-top:8px">尚無決定</div>
-    </div>
-    <div class="card">
-      <b>📝 今日反思</b>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
-        <input id="logEntries" placeholder="今日發生咗咩..." style="min-width:260px">
-        <button id="addLogBtn" class="secondary">＋ 新增</button>
-        <button id="refreshLogBtn" class="secondary">重整</button>
-      </div>
-      <pre id="logs" style="max-height:180px">尚無反思</pre>
-    </div>
-    <div class="card">
-      <b>🔍 盲點探測</b>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button id="analyzeBtn">🔍 分析</button>
-        <button id="refreshBlindBtn" class="secondary">重整</button>
-      </div>
-      <div id="blindspots" style="max-height:240px;overflow:auto">尚無訊號</div>
-    </div>
-    <div class="card">
-      <b>📊 決定結果</b>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <input id="outcomeDid" placeholder="decision_id">
-        <input id="outcomeValue" placeholder="結果">
-        <button id="outcomeBtn" class="secondary">＋ 記錄</button>
-        <button id="refreshDecisionBtn" class="secondary">重整</button>
-      </div>
-      <div id="decisionsOutcome" style="max-height:240px;overflow:auto">尚無成果</div>
-    </div>
+    <div id="sLogMsg" class="meta" style="margin-top:8px"></div>
+    <button class="secondary" onclick="hideSections()" style="width:100%;margin-top:8px">返回</button>
+  </div>
+
+  <!-- 我的模式 -->
+  <div id="section-insight" class="card hidden">
+    <b>📊 我的模式</b>
+    <pre id="insight" style="max-height:360px;overflow:auto;margin-top:8px">尚無數據，等你記錄...</pre>
+    <button class="secondary" onclick="hideSections()" style="width:100%;margin-top:8px">返回</button>
   </div>
 </div>
 
@@ -243,7 +162,7 @@
 const TOKEN_KEY='digital-twin-token';
 let token=localStorage.getItem(TOKEN_KEY)||'';
 let currentStep=0;
-const steps=['step-auth','step-risk','step-horizon','step-facts','step-decision','step-done'];
+const steps=['step-auth','step-facts','step-decision','step-done'];
 
 function base(){ return location.origin; }
 function authHeaders(){ const h={'Content-Type':'application/json'}; if(token) h['X-User-Token']=token; return h; }
@@ -256,21 +175,26 @@ function goStep(delta){ showPanel(currentStep+delta); }
 function showApp(user){
   document.querySelectorAll('.wizard-panel').forEach(el=>el.classList.remove('active'));
   document.getElementById('app').classList.remove('hidden');
-  document.getElementById('greet').textContent = '👋 您好，'+(user.display_name||user.username);
-  document.getElementById('userName').textContent = '@'+user.username;
-  setText('profile','尚無檔案','meta'); setText('facts','尚無資料','meta'); setText('logs','尚無反思','meta');
-  setHtml('decisions','尚無決定'); setHtml('blindspots','尚無訊號'); setHtml('decisionsOutcome','尚無成果');
-  api('/identity/profile').then(d=>{ setText('profile', JSON.stringify(d, null, 2)); if(d.risk_tolerance) document.getElementById('risk').value = d.risk_tolerance; if(d.time_horizon) document.getElementById('horizon').value = d.time_horizon; }).catch(()=>{});
-  api('/identity/facts').then(d=>renderFacts(d)).catch(()=>{});
-  api('/identity/decisions').then(d=>renderDecisions(d)).catch(()=>{});
-  api('/identity/daily-log?days=14').then(d=>renderLogs(d)).catch(()=>{});
-  api('/identity/blindspots').then(d=>renderBlindspots(d)).catch(()=>{});
-  refreshDecisionsWithOutcome();
+  document.getElementById('greet').textContent = '👋 您好，'+(user.display_name||user.username||'');
+  document.getElementById('userName').textContent = user.username ? '@'+user.username : '';
+  hideSections();
 }
 
 function enterApp(){ showApp({username:'',display_name:''}); }
 
-// Single-choice chips: risk, horizon
+function hideSections(){
+  document.getElementById('section-decision').classList.add('hidden');
+  document.getElementById('section-log').classList.add('hidden');
+  document.getElementById('section-insight').classList.add('hidden');
+}
+function showSection(name){
+  hideSections();
+  const el = document.getElementById('section-'+name);
+  if(el) el.classList.remove('hidden');
+  if(name === 'insight') loadInsight();
+}
+
+// Single-select chips
 document.querySelectorAll('#step-risk .chip, #step-horizon .chip').forEach(btn=>{
   btn.onclick=()=>{
     const grid = btn.parentElement;
@@ -279,12 +203,12 @@ document.querySelectorAll('#step-risk .chip, #step-horizon .chip').forEach(btn=>
   };
 });
 
-// Multi-choice chips: facts
+// Multi-select chips: facts
 const factsGrid = document.getElementById('factsGrid');
 function updateFactCount(){
   const count = factsGrid.querySelectorAll('.chip.picked').length;
   const el = document.getElementById('factCount');
-  if(el) el.textContent = count + '/4';
+  if(el) el.textContent = count + '/3';
 }
 factsGrid.querySelectorAll('.chip').forEach(btn=>{
   btn.onclick=async ()=>{
@@ -295,14 +219,12 @@ factsGrid.querySelectorAll('.chip').forEach(btn=>{
       if(btn.classList.contains('picked')){
         await api('/identity/facts',{method:'POST',body:JSON.stringify({category:cat,key,value})});
         setText('factStatus','✅ '+key+'='+value+' 已加入','ok');
-      } else {
-        setText('factStatus','已取消選擇','meta');
       }
     }catch(e){ alert('操作失敗：'+e.message); }
   };
 });
 
-// Single-choice chips: decisions
+// Single-select chips: decisions
 const decisionGrid = document.getElementById('decisionGrid');
 decisionGrid.querySelectorAll('.chip').forEach(btn=>{
   btn.onclick=async ()=>{
@@ -322,14 +244,12 @@ document.getElementById('loginBtn').onclick=async()=>{
   try{
     const j=await api('/auth/login',{method:'POST',body:JSON.stringify({username:u,password:p})});
     token=j.token; localStorage.setItem(TOKEN_KEY,token);
-    setText('authMsg','登入成功，檢查你的資料...','ok');
-    // check if user already has profile -> go straight to app
     const profile = await api('/identity/profile').catch(()=>null);
     if(profile && (profile.risk_tolerance || profile.time_horizon)){
       setText('authMsg','歡迎回來！','ok');
       showApp({username:u,display_name:j.display_name||u});
     } else {
-      setText('authMsg','登入成功，開始你的設定...','ok');
+      setText('authMsg','登入成功','ok');
       showPanel(1);
     }
   }catch(e){ setText('authMsg','登入失敗：'+e.message,'err'); }
@@ -341,57 +261,52 @@ document.getElementById('registerBtn').onclick=async()=>{
 };
 document.getElementById('logoutBtn').onclick=()=>{ token=''; localStorage.removeItem(TOKEN_KEY); location.reload(); };
 
-function saveProfile(){
-  const risk=document.querySelector('#step-risk .chip.picked')?.dataset.value||'';
-  const horizon=document.querySelector('#step-horizon .chip.picked')?.dataset.value||'';
-  return api('/identity/profile',{method:'PATCH',body:JSON.stringify({risk_tolerance:risk,time_horizon:horizon})});
+function submitDecision(){
+  const topic=document.getElementById('sTopic').value.trim(); const choice=document.getElementById('sChoice').value.trim();
+  if(!topic||!choice){alert('請輸入');return;}
+  api('/identity/decisions',{method:'POST',body:JSON.stringify({topic,choice,reasoning:'',tags:[]})}).then(()=>{
+    setText('sDecisionMsg','✅ 已記錄','ok');
+    setTimeout(()=>hideSections(),600);
+  }).catch(e=>alert('記錄失敗：'+e.message));
 }
-
-document.getElementById('saveProfileBtn').onclick=async()=>{
-  try{ await saveProfile(); alert('✅ 已保存'); }catch(e){ alert('儲存失敗：'+e.message); }
-};
-document.getElementById('addFactBtn').onclick=async()=>{
-  const key=document.getElementById('factKey').value.trim(); const value=document.getElementById('factValue').value.trim(); const category=document.getElementById('factCat').value;
-  if(!key||!value){alert('請輸入名稱與內容');return;}
-  try{ await api('/identity/facts',{method:'POST',body:JSON.stringify({category,key,value})}); document.getElementById('factKey').value=''; document.getElementById('factValue').value=''; setText('factStatus','✅ 已加入','ok'); }catch(e){ alert('加入失敗：'+e.message); }
-};
-document.getElementById('addDecisionBtn').onclick=async()=>{
-  const topic=document.getElementById('dTopic').value.trim(); const choice=document.getElementById('dChoice').value.trim(); const reason=document.getElementById('dReason').value.trim();
-  if(!topic||!choice){alert('請輸入決定同你揀咗咩');return;}
-  try{ await api('/identity/decisions',{method:'POST',body:JSON.stringify({topic,choice,reasoning:reason,tags:[]})}); document.getElementById('dTopic').value=''; document.getElementById('dChoice').value=''; document.getElementById('dReason').value=''; setText('decisionStatus','✅ 已記錄！','ok'); }catch(e){ alert('記錄失敗：'+e.message); }
-};
-
-// Auto-save on next-step navigation
-const originalGoStep = goStep;
-goStep = async function(delta){
-  if(delta > 0){
-    if(currentStep === 1){
-      // leaving risk -> save profile partial
+function submitLog(){
+  const text=document.getElementById('sLog').value.trim();
+  if(!text){alert('請輸入');return;}
+  api('/identity/daily-log',{method:'POST',body:JSON.stringify({entries:[text]})}).then(()=>{
+    setText('sLogMsg','✅ 已加入今日日誌','ok');
+    setTimeout(()=>hideSections(),600);
+  }).catch(e=>alert('新增失敗：'+e.message));
+}
+function loadInsight(){
+  Promise.all([
+    api('/identity/decisions'),
+    api('/identity/facts'),
+    api('/identity/blindspots'),
+    api('/identity/daily-log?days=7')
+  ]).then(([decisions,facts,blindspots,logs])=>{
+    const dRows = Array.isArray(decisions.決策)?decisions.決策:[];
+    const fRows = Array.isArray(facts.事實)?facts.事實:[];
+    const bRows = Array.isArray(blindspots.盲點訊號)?blindspots.盲點訊號:[];
+    const lRows = Array.isArray(logs.日誌)?logs.日誌:[];
+    const lines = [];
+    lines.push('身份資料：'+fRows.length+' 筆');
+    lines.push('今日決定：'+dRows.length+' 個');
+    lines.push('日誌：'+lRows.length+' 天');
+    if(bRows.length){
+      lines.push('盲點訊號：');
+      bRows.forEach(b=>lines.push(' - '+(b.pattern||b.id)+' ('+b.severity+')'));
+    } else {
+      lines.push('盲點：尚無足夠數據');
     }
-    if(currentStep === 2){
-      // leaving horizon -> save profile
-      try{ await saveProfile(); }catch(e){ alert('儲存失敗：'+e.message); }
+    if(dRows.length){
+      const topics = {};
+      dRows.forEach(d=>{ topics[d.topic]=(topics[d.topic]||0)+1; });
+      lines.push('最常決定：');
+      Object.entries(topics).sort((a,b)=>b[1]-a[1]).slice(0,5).forEach(([k,v])=>lines.push(' '+k+' x'+v));
     }
-    if(currentStep === 3){
-      // leaving facts -> ensure at least 1 fact
-      const picked = factsGrid.querySelectorAll('.chip.picked').length;
-      if(picked === 0){
-        alert('請至少選擇 1 個個人資料');
-        return;
-      }
-    }
-  }
-  showPanel(currentStep+delta);
-};
-
-function renderFacts(d){ const rows=Array.isArray(d.事實)?d.事實:[]; if(!rows.length){ setText('facts','尚無資料，按上方「＋ 加入」開始','meta'); return; } setHtml('facts', rows.map(r=>'['+r.category+'] '+r.key+': '+r.value).join('\\n')); }
-
-document.getElementById('editFactsBtn').onclick=function(){ document.getElementById('factsEdit').style.display='block'; this.style.display='none'; };
-document.getElementById('cancelFactBtn').onclick=function(){ document.getElementById('factsEdit').style.display='none'; document.getElementById('editFactsBtn').style.display='inline-block'; };
-function renderDecisions(d){ const rows=Array.isArray(d.決策)?d.決策:[]; if(!rows.length){ setHtml('decisions','尚無決定，記錄第一個吧！'); return; } setHtml('decisions', rows.map(r=>'<div class="list-item"><b>'+(r.topic||'')+'</b> → '+(r.choice||'')+'<br><small class="meta">'+(r.reasoning||'')+'<br>'+(r.outcome?('成果：'+r.outcome):'尚未記錄成果')+' '+(r.tags?('。'+r.tags.join(',')):'')+'<br>'+(r.created_at||'')+'</small></div>').join('')); }
-function renderLogs(d){ const rows=Array.isArray(d.日誌)?d.日誌:[]; if(!rows.length){ setText('logs','尚無反思，寫幾句今天發生什麼事吧','meta'); return; } setHtml('logs', rows.map(r=>'['+r.date+'] '+JSON.stringify(r.entries||[])).join('\\n')); }
-function renderBlindspots(d){ const rows=Array.isArray(d.盲點訊號)?d.盲點訊號:[]; if(!rows.length){ setHtml('blindspots','尚無訊號，等你記錄後按「開始分析」'); return; } setHtml('blindspots', rows.map(r=>'<div class="list-item"><b>'+(r.pattern||r.id)+'</b> · '+(r.severity||'')+'<br><small class="meta">'+(r.evidence||[]).join(' | ')+'</small></div>').join('')); }
-function refreshDecisionsWithOutcome(){ api('/identity/decisions').then(d=>{ const rows=Array.isArray(d.決策)?d.決策:[]; const withOutcome=rows.filter(r=>r.outcome); setHtml('decisionsOutcome', withOutcome.length ? rows.map(r=>'<div class="list-item"><b>'+r.id+'</b> '+(r.topic||'')+' → '+(r.choice||'')+'<br><small class="meta">成果：'+(r.outcome||'無')+' '+(r.outcome_recorded_at||'')+'</small></div>').join('') : '尚無成果，當決定有結果時回來記錄吧！'); }).catch(()=>{}); }
+    setText('insight', lines.join('\n'));
+  }).catch(()=>setText('insight','載入中...'));
+}
 
 // Init
 if(token){
