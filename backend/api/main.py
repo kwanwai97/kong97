@@ -177,7 +177,13 @@ def 大腦狀態() -> Dict[str, Any]:
 
 @app.get("/")
 def 首頁() -> RedirectResponse:
-    return RedirectResponse(url="/frontend/landing.html")
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/docs/index.html", status_code=302)
+
+@app.get("/dashboard/dashboard.html")
+async def redirect_dashboard():
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/docs/index.html", status_code=302)
 
 
 @app.get("/favicon.ico")
